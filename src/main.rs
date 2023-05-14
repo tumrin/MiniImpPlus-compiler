@@ -34,7 +34,7 @@ fn main() {
         let stream = parser.get_input_stream_mut();
 
         let token = handle_token(previous_token.clone(), current.clone(), stream.la(2), &Rust);
-        println!("{token}");
+        print!("{token}");
         previous_token = Some(current);
         if stream.la(1) != -1 {
             stream.consume();
@@ -50,7 +50,11 @@ fn handle_token(
     next: isize,
     language: &impl TranslateMiniImpPlus,
 ) -> String {
-    language.translate(MiniImpPlus::from(current.token_type))
+    language.translate(
+        MiniImpPlus::from(current.token_type),
+        previous.map(|token| MiniImpPlus::from(token.token_type)),
+        MiniImpPlus::from(next),
+    )
 }
 // 'true'=1
 // 'false'=2

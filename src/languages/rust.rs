@@ -3,36 +3,66 @@ use crate::{MiniImpPlus, TranslateMiniImpPlus};
 pub struct Rust;
 
 impl TranslateMiniImpPlus for Rust {
-    fn translate(&self, value: MiniImpPlus) -> String {
+    fn translate(
+        &self,
+        value: MiniImpPlus,
+        previous: Option<MiniImpPlus>,
+        next: MiniImpPlus,
+    ) -> String {
         match value {
             MiniImpPlus::True => "true".to_string(),
             MiniImpPlus::False => "false".to_string(),
             MiniImpPlus::Not => "!".to_string(),
-            MiniImpPlus::Is => todo!(),
-            MiniImpPlus::Or => todo!(),
-            MiniImpPlus::And => todo!(),
-            MiniImpPlus::Plus => todo!(),
-            MiniImpPlus::Minus => todo!(),
-            MiniImpPlus::Multiply => todo!(),
-            MiniImpPlus::Divide => todo!(),
-            MiniImpPlus::OpenParenthesis => todo!(),
-            MiniImpPlus::CloseParenthesis => todo!(),
-            MiniImpPlus::If => todo!(),
-            MiniImpPlus::Then => todo!(),
-            MiniImpPlus::Else => todo!(),
-            MiniImpPlus::While => todo!(),
-            MiniImpPlus::Set => todo!(),
-            MiniImpPlus::Equals => todo!(),
-            MiniImpPlus::Semicolon => todo!(),
-            MiniImpPlus::Write => todo!(),
+            MiniImpPlus::Is => {
+                if let MiniImpPlus::Identifier = next {
+                    // Skip if next is an identifier
+                    "".to_string()
+                } else if let MiniImpPlus::Not = previous.unwrap_or(MiniImpPlus::Unknown) {
+                    // Only use one equal sign for negation
+                    "=".to_string()
+                } else {
+                    "==".to_string()
+                }
+            }
+            MiniImpPlus::Or => "||".to_string(),
+            MiniImpPlus::And => "&&".to_string(),
+            MiniImpPlus::Plus => "+".to_string(),
+            MiniImpPlus::Minus => "-".to_string(),
+            MiniImpPlus::Multiply => "*".to_string(),
+            MiniImpPlus::Divide => "/".to_string(),
+            MiniImpPlus::OpenParenthesis => "(".to_string(),
+            MiniImpPlus::CloseParenthesis => ")".to_string(),
+            MiniImpPlus::If => "if".to_string(),
+            MiniImpPlus::Then => "".to_string(),
+            MiniImpPlus::Else => "else".to_string(),
+            MiniImpPlus::While => "while".to_string(),
+            MiniImpPlus::Set => "".to_string(),
+            MiniImpPlus::Equals => "=".to_string(),
+            MiniImpPlus::Semicolon => ";\n".to_string(),
+            MiniImpPlus::Write => "println!".to_string(),
             MiniImpPlus::Read => todo!(),
-            MiniImpPlus::Var => todo!(),
+            MiniImpPlus::Var => "let mut ".to_string(),
             MiniImpPlus::AsNumber => todo!(),
             MiniImpPlus::AsString => todo!(),
-            MiniImpPlus::Begin => todo!(),
-            MiniImpPlus::End => todo!(),
-            MiniImpPlus::Program => todo!(),
-            MiniImpPlus::Unknown => todo!(),
+            MiniImpPlus::Begin => "{\n".to_string(),
+            MiniImpPlus::End => "}\n".to_string(),
+            MiniImpPlus::Program => "fn main()".to_string(),
+            MiniImpPlus::Identifier => previous.map_or_else(
+                || format!("{}", "a"),
+                |prev| match prev {
+                    MiniImpPlus::Write => {
+                        format!("(\"{{{}}}\")", "a")
+                    }
+                    MiniImpPlus::Is => {
+                        format!("({} == ", "a")
+                    }
+                    MiniImpPlus::Program => "".to_string(),
+                    MiniImpPlus::Identifier => format!("{})", "a"),
+                    _ => format!("{}", "a"),
+                },
+            ),
+            MiniImpPlus::Number => "0".to_string(),
+            MiniImpPlus::Unknown => "".to_string(),
         }
     }
 }
@@ -46,14 +76,6 @@ impl TranslateMiniImpPlus for Rust {
 //     print!("!");
 // }
 // 4 => {
-//     if next == 23 {
-//         // Skip if next would be variable
-//     } else if previous.map_or(false, |prev| prev.token_type == 3) {
-//         // Only use one equal sign for negation
-//         print!("=");
-//     } else {
-//         print!("==");
-//     }
 // }
 // 5 => {
 //     print!("+");
@@ -109,7 +131,8 @@ impl TranslateMiniImpPlus for Rust {
 // 22 => {
 //     PRINT!("FN MAIN()");
 // }
-// 23 => PREVIOUS.CLONE().MAP_OR_ELSE(
+// 23 =>
+// PREVIOUS.CLONE().MAP_OR_ELSE(
 //     || PRINT!("{}", CURRENT.TEXT),
 //     |PREV| MATCH PREV.TOKEN_TYPE {
 //         18 => {

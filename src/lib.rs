@@ -1,5 +1,5 @@
 use antlr_rust::token::GenericToken;
-use std::usize;
+use std::{fmt::Display, usize};
 
 pub mod languages;
 
@@ -31,7 +31,14 @@ pub enum MiniImpPlus {
     Begin,
     End,
     Program,
+    Identifier,
+    Number,
     Unknown,
+}
+impl Display for MiniImpPlus {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self)
+    }
 }
 impl From<isize> for MiniImpPlus {
     fn from(value: isize) -> Self {
@@ -63,10 +70,17 @@ impl From<isize> for MiniImpPlus {
             25 => MiniImpPlus::Begin,
             26 => MiniImpPlus::End,
             27 => MiniImpPlus::Program,
+            28 => MiniImpPlus::Identifier,
+            29 => MiniImpPlus::Number,
             _ => MiniImpPlus::Unknown,
         }
     }
 }
 pub trait TranslateMiniImpPlus {
-    fn translate(&self, mini_imp: MiniImpPlus) -> String;
+    fn translate(
+        &self,
+        mini_imp: MiniImpPlus,
+        previous: Option<MiniImpPlus>,
+        next: MiniImpPlus,
+    ) -> String;
 }
