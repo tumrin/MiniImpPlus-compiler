@@ -2,7 +2,8 @@ use antlr_rust::{
     common_token_stream::CommonTokenStream, token::GenericToken, InputStream, Parser,
 };
 use mini_imp::miniimpparser::MiniImpParser;
-use std::borrow::Cow;
+use mini_imp_plus::{languages::rust::Rust, MiniImpPlus, TranslateMiniImpPlus};
+use std::{borrow::Cow, fs};
 
 mod mini_imp;
 
@@ -31,7 +32,9 @@ fn main() {
     while !parser.matched_eof {
         let current = parser.get_current_token().clone();
         let stream = parser.get_input_stream_mut();
-        handle_token(previous_token.clone(), current.clone(), stream.la(2));
+
+        let token = handle_token(previous_token.clone(), current.clone(), stream.la(2), &Rust);
+        println!("{token}");
         previous_token = Some(current);
         if stream.la(1) != -1 {
             stream.consume();
@@ -45,105 +48,9 @@ fn handle_token(
     previous: Option<Box<GenericToken<Cow<str>>>>,
     current: Box<GenericToken<Cow<str>>>,
     next: isize,
-) {
-    match current.token_type {
-        1 => {
-            print!("true");
-        }
-        2 => {
-            print!("false");
-        }
-        3 => {
-            print!("!");
-        }
-        4 => {
-            if next == 23 {
-                // Skip if next would be variable
-            } else if previous.map_or(false, |prev| prev.token_type == 3) {
-                // Only use one equal sign for negation
-                print!("=");
-            } else {
-                print!("==");
-            }
-        }
-        5 => {
-            print!("+");
-        }
-        6 => {
-            print!("-");
-        }
-        7 => {
-            print!("*");
-        }
-        8 => {
-            print!("/");
-        }
-        9 => {
-            print!("(");
-        }
-        10 => {
-            print!(")");
-        }
-        11 => {
-            print!("if");
-        }
-        12 => {
-            print!("then");
-        }
-        13 => {
-            print!("else");
-        }
-        14 => {
-            print!("while ");
-        }
-        15 => {
-            // Skip set
-        }
-        16 => {
-            print!(" = ");
-        }
-        17 => {
-            print!(";\n");
-        }
-        18 => {
-            print!("println!");
-        }
-        19 => {
-            print!("let mut ");
-        }
-        20 => {
-            print!(" {{\n");
-        }
-        21 => {
-            print!("}}\n");
-        }
-        22 => {
-            print!("fn main()");
-        }
-        23 => previous.clone().map_or_else(
-            || print!("{}", current.text),
-            |prev| match prev.token_type {
-                18 => {
-                    print!("(\"{{{}}}\")", current.text);
-                }
-                4 => {
-                    print!("({} == ", current.text)
-                }
-                22 => (),
-                23 => print!("{})", current.text),
-                _ => print!("{}", current.text),
-            },
-        ),
-        24 => {
-            print!("{}", current.text);
-        }
-        25 => {
-            print!("WS");
-        }
-        _ => {
-            //print!("unknown");
-        }
-    }
+    language: &impl TranslateMiniImpPlus,
+) -> String {
+    language.translate(MiniImpPlus::from(current.token_type))
 }
 // 'true'=1
 // 'false'=2
