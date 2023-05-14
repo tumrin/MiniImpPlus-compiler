@@ -5,7 +5,7 @@ fragment Letter : [A-Z] ;
 
 Identifier : Letter ( Letter | Digit | '_' )* ;
 Number : Digit Digit* ;
-truth : 'true' | 'false' | 'not' truth | 'is' Identifier expr | expr 'or' expr | expr 'and' expr;
+truth : 'true' | 'false' | 'not' truth | 'is' Identifier expr | truth 'or' truth | truth 'and' truth;
 
 expr   : term (('+' | '-') term)* ;
 term   : factor (('*' | '/') factor)* ;
@@ -16,9 +16,13 @@ select : 'if' expr 'then' scope 'else' scope ;
 iterat : 'while' expr scope ;
 set    : 'set' Identifier '=' expr ';' ;
 write  : 'write' expr ';' ;
+read   : 'read' expr ';' ;
+
 
 decl     : variable ;
 variable : 'var' Identifier ( '=' expr )? ';' ;
+asNumber : variable 'asNumber';
+asString : variable 'asString';
 
 stmts : stmt stmt* ;
 decls : decl decl* ;

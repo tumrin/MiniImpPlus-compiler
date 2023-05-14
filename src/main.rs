@@ -1,10 +1,8 @@
-use std::borrow::Cow;
-
 use antlr_rust::{
-    common_token_stream::CommonTokenStream, int_stream::IntStream, token::GenericToken,
-    InputStream, Parser,
+    common_token_stream::CommonTokenStream, token::GenericToken, InputStream, Parser,
 };
 use mini_imp::miniimpparser::MiniImpParser;
+use std::borrow::Cow;
 
 mod mini_imp;
 
@@ -147,6 +145,33 @@ fn handle_token(
         }
     }
 }
+// 'true'=1
+// 'false'=2
+// 'not'=3
+// 'is'=4
+// 'or'=5
+// 'and'=6
+// '+'=7
+// '-'=8
+// '*'=9
+// '/'=10
+// '('=11
+// ')'=12
+// 'if'=13
+// 'then'=14
+// 'else'=15
+// 'while'=16
+// 'set'=17
+// '='=18
+// ';'=19
+// 'write'=20
+// 'read'=21
+// 'var'=22
+// 'asNumber'=23
+// 'asString'=24
+// 'begin'=25
+// 'end.'=26
+// 'program'=27
 
 // Identifier=23
 // Number=24

@@ -59,9 +59,14 @@ use std::any::{Any,TypeId};
 		pub const T__19:isize=20; 
 		pub const T__20:isize=21; 
 		pub const T__21:isize=22; 
-		pub const Identifier:isize=23; 
-		pub const Number:isize=24; 
-		pub const WS:isize=25;
+		pub const T__22:isize=23; 
+		pub const T__23:isize=24; 
+		pub const T__24:isize=25; 
+		pub const T__25:isize=26; 
+		pub const T__26:isize=27; 
+		pub const Identifier:isize=28; 
+		pub const Number:isize=29; 
+		pub const WS:isize=30;
 	pub const RULE_truth:usize = 0; 
 	pub const RULE_expr:usize = 1; 
 	pub const RULE_term:usize = 2; 
@@ -71,30 +76,35 @@ use std::any::{Any,TypeId};
 	pub const RULE_iterat:usize = 6; 
 	pub const RULE_set:usize = 7; 
 	pub const RULE_write:usize = 8; 
-	pub const RULE_decl:usize = 9; 
-	pub const RULE_variable:usize = 10; 
-	pub const RULE_stmts:usize = 11; 
-	pub const RULE_decls:usize = 12; 
-	pub const RULE_scope:usize = 13; 
-	pub const RULE_init:usize = 14; 
-	pub const RULE_prog:usize = 15;
-	pub const ruleNames: [&'static str; 16] =  [
+	pub const RULE_read:usize = 9; 
+	pub const RULE_decl:usize = 10; 
+	pub const RULE_variable:usize = 11; 
+	pub const RULE_asNumber:usize = 12; 
+	pub const RULE_asString:usize = 13; 
+	pub const RULE_stmts:usize = 14; 
+	pub const RULE_decls:usize = 15; 
+	pub const RULE_scope:usize = 16; 
+	pub const RULE_init:usize = 17; 
+	pub const RULE_prog:usize = 18;
+	pub const ruleNames: [&'static str; 19] =  [
 		"truth", "expr", "term", "factor", "stmt", "select", "iterat", "set", 
-		"write", "decl", "variable", "stmts", "decls", "scope", "init", "prog"
+		"write", "read", "decl", "variable", "asNumber", "asString", "stmts", 
+		"decls", "scope", "init", "prog"
 	];
 
 
-	pub const _LITERAL_NAMES: [Option<&'static str>;23] = [
-		None, Some("'true'"), Some("'false'"), Some("'not'"), Some("'is'"), Some("'+'"), 
-		Some("'-'"), Some("'*'"), Some("'/'"), Some("'('"), Some("')'"), Some("'if'"), 
-		Some("'then'"), Some("'else'"), Some("'while'"), Some("'set'"), Some("'='"), 
-		Some("';'"), Some("'write'"), Some("'var'"), Some("'begin'"), Some("'end.'"), 
-		Some("'program'")
+	pub const _LITERAL_NAMES: [Option<&'static str>;28] = [
+		None, Some("'true'"), Some("'false'"), Some("'not'"), Some("'is'"), Some("'or'"), 
+		Some("'and'"), Some("'+'"), Some("'-'"), Some("'*'"), Some("'/'"), Some("'('"), 
+		Some("')'"), Some("'if'"), Some("'then'"), Some("'else'"), Some("'while'"), 
+		Some("'set'"), Some("'='"), Some("';'"), Some("'write'"), Some("'read'"), 
+		Some("'var'"), Some("'asNumber'"), Some("'asString'"), Some("'begin'"), 
+		Some("'end.'"), Some("'program'")
 	];
-	pub const _SYMBOLIC_NAMES: [Option<&'static str>;26]  = [
+	pub const _SYMBOLIC_NAMES: [Option<&'static str>;31]  = [
 		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, None, None, None, None, None, None, None, None, Some("Identifier"), 
-		Some("Number"), Some("WS")
+		None, None, None, None, None, None, None, None, None, None, None, None, 
+		None, None, None, None, Some("Identifier"), Some("Number"), Some("WS")
 	];
 	lazy_static!{
 	    static ref _shared_context_cache: Arc<PredictionContextCache> = Arc::new(PredictionContextCache::new());
@@ -242,6 +252,33 @@ impl<'input,I: TokenStream<'input, TF = LocalTokenFactory<'input> > + TidAble<'i
    	fn get_rule_names(&self) -> &[& str] {&ruleNames}
 
    	fn get_vocabulary(&self) -> &dyn Vocabulary { &**VOCABULARY }
+	fn sempred(_localctx: Option<&(dyn MiniImpParserContext<'input> + 'input)>, rule_index: isize, pred_index: isize,
+			   recog:&mut BaseParserType<'input,I>
+	)->bool{
+		match rule_index {
+					0 => MiniImpParser::<'input,I,_>::truth_sempred(_localctx.and_then(|x|x.downcast_ref()), pred_index, recog),
+			_ => true
+		}
+	}
+}
+
+impl<'input, I> MiniImpParser<'input, I, DefaultErrorStrategy<'input,MiniImpParserContextType>>
+where
+    I: TokenStream<'input, TF = LocalTokenFactory<'input> > + TidAble<'input>,
+{
+	fn truth_sempred(_localctx: Option<&TruthContext<'input>>, pred_index:isize,
+						recog:&mut <Self as Deref>::Target
+		) -> bool {
+		match pred_index {
+				0=>{
+					recog.precpred(None, 2)
+				}
+				1=>{
+					recog.precpred(None, 1)
+				}
+			_ => true
+		}
+	}
 }
 //------------------- truth ----------------
 pub type TruthContextAll<'input> = TruthContext<'input>;
@@ -286,8 +323,11 @@ impl<'input> TruthContextExt<'input>{
 
 pub trait TruthContextAttrs<'input>: MiniImpParserContext<'input> + BorrowMut<TruthContextExt<'input>>{
 
-fn truth(&self) -> Option<Rc<TruthContextAll<'input>>> where Self:Sized{
-	self.child_of_type(0)
+fn truth_all(&self) ->  Vec<Rc<TruthContextAll<'input>>> where Self:Sized{
+	self.children_of_type()
+}
+fn truth(&self, i: usize) -> Option<Rc<TruthContextAll<'input>>> where Self:Sized{
+	self.child_of_type(i)
 }
 /// Retrieves first TerminalNode corresponding to token Identifier
 /// Returns `None` if there is no child corresponding to token Identifier
@@ -307,24 +347,33 @@ where
     I: TokenStream<'input, TF = LocalTokenFactory<'input> > + TidAble<'input>,
     H: ErrorStrategy<'input,BaseParserType<'input,I>>
 {
-	pub fn truth(&mut self,)
+	pub fn  truth(&mut self,)
 	-> Result<Rc<TruthContextAll<'input>>,ANTLRError> {
-		let mut recog = self;
-		let _parentctx = recog.ctx.take();
-		let mut _localctx = TruthContextExt::new(_parentctx.clone(), recog.base.get_state());
-        recog.base.enter_rule(_localctx.clone(), 0, RULE_truth);
-        let mut _localctx: Rc<TruthContextAll> = _localctx;
-		let result: Result<(), ANTLRError> = (|| {
+		self.truth_rec(0)
+	}
 
-			recog.base.set_state(39);
+	fn truth_rec(&mut self, _p: isize)
+	-> Result<Rc<TruthContextAll<'input>>,ANTLRError> {
+		let recog = self;
+		let _parentctx = recog.ctx.take();
+		let _parentState = recog.base.get_state();
+		let mut _localctx = TruthContextExt::new(_parentctx.clone(), recog.base.get_state());
+		recog.base.enter_recursion_rule(_localctx.clone(), 0, RULE_truth, _p);
+	    let mut _localctx: Rc<TruthContextAll> = _localctx;
+        let mut _prevctx = _localctx.clone();
+		let _startState = 0;
+		let result: Result<(), ANTLRError> = (|| {
+			let mut _alt: isize;
+			//recog.base.enter_outer_alt(_localctx.clone(), 1);
+			recog.base.enter_outer_alt(None, 1);
+			{
+			recog.base.set_state(46);
 			recog.err_handler.sync(&mut recog.base)?;
 			match recog.base.input.la(1) {
 			 T__0 
 				=> {
-					//recog.base.enter_outer_alt(_localctx.clone(), 1);
-					recog.base.enter_outer_alt(None, 1);
 					{
-					recog.base.set_state(32);
+					recog.base.set_state(39);
 					recog.base.match_token(T__0,&mut recog.err_handler)?;
 
 					}
@@ -332,10 +381,8 @@ where
 
 			 T__1 
 				=> {
-					//recog.base.enter_outer_alt(_localctx.clone(), 2);
-					recog.base.enter_outer_alt(None, 2);
 					{
-					recog.base.set_state(33);
+					recog.base.set_state(40);
 					recog.base.match_token(T__1,&mut recog.err_handler)?;
 
 					}
@@ -343,32 +390,28 @@ where
 
 			 T__2 
 				=> {
-					//recog.base.enter_outer_alt(_localctx.clone(), 3);
-					recog.base.enter_outer_alt(None, 3);
 					{
-					recog.base.set_state(34);
+					recog.base.set_state(41);
 					recog.base.match_token(T__2,&mut recog.err_handler)?;
 
 					/*InvokeRule truth*/
-					recog.base.set_state(35);
-					recog.truth()?;
+					recog.base.set_state(42);
+					recog.truth_rec(4)?;
 
 					}
 				}
 
 			 T__3 
 				=> {
-					//recog.base.enter_outer_alt(_localctx.clone(), 4);
-					recog.base.enter_outer_alt(None, 4);
 					{
-					recog.base.set_state(36);
+					recog.base.set_state(43);
 					recog.base.match_token(T__3,&mut recog.err_handler)?;
 
-					recog.base.set_state(37);
+					recog.base.set_state(44);
 					recog.base.match_token(Identifier,&mut recog.err_handler)?;
 
 					/*InvokeRule expr*/
-					recog.base.set_state(38);
+					recog.base.set_state(45);
 					recog.expr()?;
 
 					}
@@ -376,18 +419,80 @@ where
 
 				_ => Err(ANTLRError::NoAltError(NoViableAltError::new(&mut recog.base)))?
 			}
+
+			let tmp = recog.input.lt(-1).cloned();
+			recog.ctx.as_ref().unwrap().set_stop(tmp);
+			recog.base.set_state(56);
+			recog.err_handler.sync(&mut recog.base)?;
+			_alt = recog.interpreter.adaptive_predict(2,&mut recog.base)?;
+			while { _alt!=2 && _alt!=INVALID_ALT } {
+				if _alt==1 {
+					recog.trigger_exit_rule_event();
+					_prevctx = _localctx.clone();
+					{
+					recog.base.set_state(54);
+					recog.err_handler.sync(&mut recog.base)?;
+					match  recog.interpreter.adaptive_predict(1,&mut recog.base)? {
+						1 =>{
+							{
+							/*recRuleAltStartAction*/
+							let mut tmp = TruthContextExt::new(_parentctx.clone(), _parentState);
+							recog.push_new_recursion_context(tmp.clone(), _startState, RULE_truth);
+							_localctx = tmp;
+							recog.base.set_state(48);
+							if !({recog.precpred(None, 2)}) {
+								Err(FailedPredicateError::new(&mut recog.base, Some("recog.precpred(None, 2)".to_owned()), None))?;
+							}
+							recog.base.set_state(49);
+							recog.base.match_token(T__4,&mut recog.err_handler)?;
+
+							/*InvokeRule truth*/
+							recog.base.set_state(50);
+							recog.truth_rec(3)?;
+
+							}
+						}
+					,
+						2 =>{
+							{
+							/*recRuleAltStartAction*/
+							let mut tmp = TruthContextExt::new(_parentctx.clone(), _parentState);
+							recog.push_new_recursion_context(tmp.clone(), _startState, RULE_truth);
+							_localctx = tmp;
+							recog.base.set_state(51);
+							if !({recog.precpred(None, 1)}) {
+								Err(FailedPredicateError::new(&mut recog.base, Some("recog.precpred(None, 1)".to_owned()), None))?;
+							}
+							recog.base.set_state(52);
+							recog.base.match_token(T__5,&mut recog.err_handler)?;
+
+							/*InvokeRule truth*/
+							recog.base.set_state(53);
+							recog.truth_rec(2)?;
+
+							}
+						}
+
+						_ => {}
+					}
+					} 
+				}
+				recog.base.set_state(58);
+				recog.err_handler.sync(&mut recog.base)?;
+				_alt = recog.interpreter.adaptive_predict(2,&mut recog.base)?;
+			}
+			}
 			Ok(())
 		})();
 		match result {
-		Ok(_)=>{},
+		Ok(_) => {},
         Err(e @ ANTLRError::FallThrough(_)) => return Err(e),
-		Err(ref re) => {
-				//_localctx.exception = re;
-				recog.err_handler.report_error(&mut recog.base, re);
-				recog.err_handler.recover(&mut recog.base, re)?;
-			}
+		Err(ref re)=>{
+			//_localctx.exception = re;
+			recog.err_handler.report_error(&mut recog.base, re);
+	        recog.err_handler.recover(&mut recog.base, re)?;}
 		}
-		recog.base.exit_rule();
+		recog.base.unroll_recursion_context(_parentctx);
 
 		Ok(_localctx)
 	}
@@ -466,19 +571,19 @@ where
 			recog.base.enter_outer_alt(None, 1);
 			{
 			/*InvokeRule term*/
-			recog.base.set_state(41);
+			recog.base.set_state(59);
 			recog.term()?;
 
-			recog.base.set_state(46);
+			recog.base.set_state(64);
 			recog.err_handler.sync(&mut recog.base)?;
-			_alt = recog.interpreter.adaptive_predict(1,&mut recog.base)?;
+			_alt = recog.interpreter.adaptive_predict(3,&mut recog.base)?;
 			while { _alt!=2 && _alt!=INVALID_ALT } {
 				if _alt==1 {
 					{
 					{
-					recog.base.set_state(42);
+					recog.base.set_state(60);
 					_la = recog.base.input.la(1);
-					if { !(_la==T__4 || _la==T__5) } {
+					if { !(_la==T__6 || _la==T__7) } {
 						recog.err_handler.recover_inline(&mut recog.base)?;
 
 					}
@@ -488,15 +593,15 @@ where
 						recog.base.consume(&mut recog.err_handler);
 					}
 					/*InvokeRule term*/
-					recog.base.set_state(43);
+					recog.base.set_state(61);
 					recog.term()?;
 
 					}
 					} 
 				}
-				recog.base.set_state(48);
+				recog.base.set_state(66);
 				recog.err_handler.sync(&mut recog.base)?;
-				_alt = recog.interpreter.adaptive_predict(1,&mut recog.base)?;
+				_alt = recog.interpreter.adaptive_predict(3,&mut recog.base)?;
 			}
 			}
 			Ok(())
@@ -589,19 +694,19 @@ where
 			recog.base.enter_outer_alt(None, 1);
 			{
 			/*InvokeRule factor*/
-			recog.base.set_state(49);
+			recog.base.set_state(67);
 			recog.factor()?;
 
-			recog.base.set_state(54);
+			recog.base.set_state(72);
 			recog.err_handler.sync(&mut recog.base)?;
-			_alt = recog.interpreter.adaptive_predict(2,&mut recog.base)?;
+			_alt = recog.interpreter.adaptive_predict(4,&mut recog.base)?;
 			while { _alt!=2 && _alt!=INVALID_ALT } {
 				if _alt==1 {
 					{
 					{
-					recog.base.set_state(50);
+					recog.base.set_state(68);
 					_la = recog.base.input.la(1);
-					if { !(_la==T__6 || _la==T__7) } {
+					if { !(_la==T__8 || _la==T__9) } {
 						recog.err_handler.recover_inline(&mut recog.base)?;
 
 					}
@@ -611,15 +716,15 @@ where
 						recog.base.consume(&mut recog.err_handler);
 					}
 					/*InvokeRule factor*/
-					recog.base.set_state(51);
+					recog.base.set_state(69);
 					recog.factor()?;
 
 					}
 					} 
 				}
-				recog.base.set_state(56);
+				recog.base.set_state(74);
 				recog.err_handler.sync(&mut recog.base)?;
-				_alt = recog.interpreter.adaptive_predict(2,&mut recog.base)?;
+				_alt = recog.interpreter.adaptive_predict(4,&mut recog.base)?;
 			}
 			}
 			Ok(())
@@ -716,24 +821,24 @@ where
         let mut _localctx: Rc<FactorContextAll> = _localctx;
 		let result: Result<(), ANTLRError> = (|| {
 
-			recog.base.set_state(64);
+			recog.base.set_state(82);
 			recog.err_handler.sync(&mut recog.base)?;
 			match recog.base.input.la(1) {
-			 T__8 
+			 T__10 
 				=> {
 					//recog.base.enter_outer_alt(_localctx.clone(), 1);
 					recog.base.enter_outer_alt(None, 1);
 					{
 					{
-					recog.base.set_state(57);
-					recog.base.match_token(T__8,&mut recog.err_handler)?;
+					recog.base.set_state(75);
+					recog.base.match_token(T__10,&mut recog.err_handler)?;
 
 					/*InvokeRule expr*/
-					recog.base.set_state(58);
+					recog.base.set_state(76);
 					recog.expr()?;
 
-					recog.base.set_state(59);
-					recog.base.match_token(T__9,&mut recog.err_handler)?;
+					recog.base.set_state(77);
+					recog.base.match_token(T__11,&mut recog.err_handler)?;
 
 					}
 					}
@@ -745,8 +850,8 @@ where
 					recog.base.enter_outer_alt(None, 2);
 					{
 					/*InvokeRule truth*/
-					recog.base.set_state(61);
-					recog.truth()?;
+					recog.base.set_state(79);
+					recog.truth_rec(0)?;
 
 					}
 				}
@@ -756,7 +861,7 @@ where
 					//recog.base.enter_outer_alt(_localctx.clone(), 3);
 					recog.base.enter_outer_alt(None, 3);
 					{
-					recog.base.set_state(62);
+					recog.base.set_state(80);
 					recog.base.match_token(Identifier,&mut recog.err_handler)?;
 
 					}
@@ -767,7 +872,7 @@ where
 					//recog.base.enter_outer_alt(_localctx.clone(), 4);
 					recog.base.enter_outer_alt(None, 4);
 					{
-					recog.base.set_state(63);
+					recog.base.set_state(81);
 					recog.base.match_token(Number,&mut recog.err_handler)?;
 
 					}
@@ -865,52 +970,52 @@ where
         let mut _localctx: Rc<StmtContextAll> = _localctx;
 		let result: Result<(), ANTLRError> = (|| {
 
-			recog.base.set_state(70);
+			recog.base.set_state(88);
 			recog.err_handler.sync(&mut recog.base)?;
 			match recog.base.input.la(1) {
-			 T__10 
+			 T__12 
 				=> {
 					//recog.base.enter_outer_alt(_localctx.clone(), 1);
 					recog.base.enter_outer_alt(None, 1);
 					{
 					/*InvokeRule select*/
-					recog.base.set_state(66);
+					recog.base.set_state(84);
 					recog.select()?;
 
 					}
 				}
 
-			 T__13 
+			 T__15 
 				=> {
 					//recog.base.enter_outer_alt(_localctx.clone(), 2);
 					recog.base.enter_outer_alt(None, 2);
 					{
 					/*InvokeRule iterat*/
-					recog.base.set_state(67);
+					recog.base.set_state(85);
 					recog.iterat()?;
 
 					}
 				}
 
-			 T__14 
+			 T__16 
 				=> {
 					//recog.base.enter_outer_alt(_localctx.clone(), 3);
 					recog.base.enter_outer_alt(None, 3);
 					{
 					/*InvokeRule set*/
-					recog.base.set_state(68);
+					recog.base.set_state(86);
 					recog.set()?;
 
 					}
 				}
 
-			 T__17 
+			 T__19 
 				=> {
 					//recog.base.enter_outer_alt(_localctx.clone(), 4);
 					recog.base.enter_outer_alt(None, 4);
 					{
 					/*InvokeRule write*/
-					recog.base.set_state(69);
+					recog.base.set_state(87);
 					recog.write()?;
 
 					}
@@ -1008,25 +1113,25 @@ where
 			//recog.base.enter_outer_alt(_localctx.clone(), 1);
 			recog.base.enter_outer_alt(None, 1);
 			{
-			recog.base.set_state(72);
-			recog.base.match_token(T__10,&mut recog.err_handler)?;
-
-			/*InvokeRule expr*/
-			recog.base.set_state(73);
-			recog.expr()?;
-
-			recog.base.set_state(74);
-			recog.base.match_token(T__11,&mut recog.err_handler)?;
-
-			/*InvokeRule scope*/
-			recog.base.set_state(75);
-			recog.scope()?;
-
-			recog.base.set_state(76);
+			recog.base.set_state(90);
 			recog.base.match_token(T__12,&mut recog.err_handler)?;
 
+			/*InvokeRule expr*/
+			recog.base.set_state(91);
+			recog.expr()?;
+
+			recog.base.set_state(92);
+			recog.base.match_token(T__13,&mut recog.err_handler)?;
+
 			/*InvokeRule scope*/
-			recog.base.set_state(77);
+			recog.base.set_state(93);
+			recog.scope()?;
+
+			recog.base.set_state(94);
+			recog.base.match_token(T__14,&mut recog.err_handler)?;
+
+			/*InvokeRule scope*/
+			recog.base.set_state(95);
 			recog.scope()?;
 
 			}
@@ -1117,15 +1222,15 @@ where
 			//recog.base.enter_outer_alt(_localctx.clone(), 1);
 			recog.base.enter_outer_alt(None, 1);
 			{
-			recog.base.set_state(79);
-			recog.base.match_token(T__13,&mut recog.err_handler)?;
+			recog.base.set_state(97);
+			recog.base.match_token(T__15,&mut recog.err_handler)?;
 
 			/*InvokeRule expr*/
-			recog.base.set_state(80);
+			recog.base.set_state(98);
 			recog.expr()?;
 
 			/*InvokeRule scope*/
-			recog.base.set_state(81);
+			recog.base.set_state(99);
 			recog.scope()?;
 
 			}
@@ -1218,21 +1323,21 @@ where
 			//recog.base.enter_outer_alt(_localctx.clone(), 1);
 			recog.base.enter_outer_alt(None, 1);
 			{
-			recog.base.set_state(83);
-			recog.base.match_token(T__14,&mut recog.err_handler)?;
+			recog.base.set_state(101);
+			recog.base.match_token(T__16,&mut recog.err_handler)?;
 
-			recog.base.set_state(84);
+			recog.base.set_state(102);
 			recog.base.match_token(Identifier,&mut recog.err_handler)?;
 
-			recog.base.set_state(85);
-			recog.base.match_token(T__15,&mut recog.err_handler)?;
+			recog.base.set_state(103);
+			recog.base.match_token(T__17,&mut recog.err_handler)?;
 
 			/*InvokeRule expr*/
-			recog.base.set_state(86);
+			recog.base.set_state(104);
 			recog.expr()?;
 
-			recog.base.set_state(87);
-			recog.base.match_token(T__16,&mut recog.err_handler)?;
+			recog.base.set_state(105);
+			recog.base.match_token(T__18,&mut recog.err_handler)?;
 
 			}
 			Ok(())
@@ -1319,15 +1424,110 @@ where
 			//recog.base.enter_outer_alt(_localctx.clone(), 1);
 			recog.base.enter_outer_alt(None, 1);
 			{
-			recog.base.set_state(89);
-			recog.base.match_token(T__17,&mut recog.err_handler)?;
+			recog.base.set_state(107);
+			recog.base.match_token(T__19,&mut recog.err_handler)?;
 
 			/*InvokeRule expr*/
-			recog.base.set_state(90);
+			recog.base.set_state(108);
 			recog.expr()?;
 
-			recog.base.set_state(91);
-			recog.base.match_token(T__16,&mut recog.err_handler)?;
+			recog.base.set_state(109);
+			recog.base.match_token(T__18,&mut recog.err_handler)?;
+
+			}
+			Ok(())
+		})();
+		match result {
+		Ok(_)=>{},
+        Err(e @ ANTLRError::FallThrough(_)) => return Err(e),
+		Err(ref re) => {
+				//_localctx.exception = re;
+				recog.err_handler.report_error(&mut recog.base, re);
+				recog.err_handler.recover(&mut recog.base, re)?;
+			}
+		}
+		recog.base.exit_rule();
+
+		Ok(_localctx)
+	}
+}
+//------------------- read ----------------
+pub type ReadContextAll<'input> = ReadContext<'input>;
+
+
+pub type ReadContext<'input> = BaseParserRuleContext<'input,ReadContextExt<'input>>;
+
+#[derive(Clone)]
+pub struct ReadContextExt<'input>{
+ph:PhantomData<&'input str>
+}
+
+impl<'input> MiniImpParserContext<'input> for ReadContext<'input>{}
+
+impl<'input,'a> Listenable<dyn MiniImpListener<'input> + 'a> for ReadContext<'input>{
+		fn enter(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
+			listener.enter_every_rule(self);
+			listener.enter_read(self);
+		}fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
+			listener.exit_read(self);
+			listener.exit_every_rule(self);
+		}
+}
+
+impl<'input> CustomRuleContext<'input> for ReadContextExt<'input>{
+	type TF = LocalTokenFactory<'input>;
+	type Ctx = MiniImpParserContextType;
+	fn get_rule_index(&self) -> usize { RULE_read }
+	//fn type_rule_index() -> usize where Self: Sized { RULE_read }
+}
+antlr_rust::tid!{ReadContextExt<'a>}
+
+impl<'input> ReadContextExt<'input>{
+	fn new(parent: Option<Rc<dyn MiniImpParserContext<'input> + 'input > >, invoking_state: isize) -> Rc<ReadContextAll<'input>> {
+		Rc::new(
+			BaseParserRuleContext::new_parser_ctx(parent, invoking_state,ReadContextExt{
+				ph:PhantomData
+			}),
+		)
+	}
+}
+
+pub trait ReadContextAttrs<'input>: MiniImpParserContext<'input> + BorrowMut<ReadContextExt<'input>>{
+
+fn expr(&self) -> Option<Rc<ExprContextAll<'input>>> where Self:Sized{
+	self.child_of_type(0)
+}
+
+}
+
+impl<'input> ReadContextAttrs<'input> for ReadContext<'input>{}
+
+impl<'input, I, H> MiniImpParser<'input, I, H>
+where
+    I: TokenStream<'input, TF = LocalTokenFactory<'input> > + TidAble<'input>,
+    H: ErrorStrategy<'input,BaseParserType<'input,I>>
+{
+	pub fn read(&mut self,)
+	-> Result<Rc<ReadContextAll<'input>>,ANTLRError> {
+		let mut recog = self;
+		let _parentctx = recog.ctx.take();
+		let mut _localctx = ReadContextExt::new(_parentctx.clone(), recog.base.get_state());
+        recog.base.enter_rule(_localctx.clone(), 18, RULE_read);
+        let mut _localctx: Rc<ReadContextAll> = _localctx;
+		let result: Result<(), ANTLRError> = (|| {
+
+			//recog.base.enter_outer_alt(_localctx.clone(), 1);
+			recog.base.enter_outer_alt(None, 1);
+			{
+			recog.base.set_state(111);
+			recog.base.match_token(T__20,&mut recog.err_handler)?;
+
+			/*InvokeRule expr*/
+			recog.base.set_state(112);
+			recog.expr()?;
+
+			recog.base.set_state(113);
+			recog.base.match_token(T__18,&mut recog.err_handler)?;
 
 			}
 			Ok(())
@@ -1407,7 +1607,7 @@ where
 		let mut recog = self;
 		let _parentctx = recog.ctx.take();
 		let mut _localctx = DeclContextExt::new(_parentctx.clone(), recog.base.get_state());
-        recog.base.enter_rule(_localctx.clone(), 18, RULE_decl);
+        recog.base.enter_rule(_localctx.clone(), 20, RULE_decl);
         let mut _localctx: Rc<DeclContextAll> = _localctx;
 		let result: Result<(), ANTLRError> = (|| {
 
@@ -1415,7 +1615,7 @@ where
 			recog.base.enter_outer_alt(None, 1);
 			{
 			/*InvokeRule variable*/
-			recog.base.set_state(93);
+			recog.base.set_state(115);
 			recog.variable()?;
 
 			}
@@ -1501,7 +1701,7 @@ where
 		let mut recog = self;
 		let _parentctx = recog.ctx.take();
 		let mut _localctx = VariableContextExt::new(_parentctx.clone(), recog.base.get_state());
-        recog.base.enter_rule(_localctx.clone(), 20, RULE_variable);
+        recog.base.enter_rule(_localctx.clone(), 22, RULE_variable);
         let mut _localctx: Rc<VariableContextAll> = _localctx;
 		let mut _la: isize = -1;
 		let result: Result<(), ANTLRError> = (|| {
@@ -1509,29 +1709,213 @@ where
 			//recog.base.enter_outer_alt(_localctx.clone(), 1);
 			recog.base.enter_outer_alt(None, 1);
 			{
-			recog.base.set_state(95);
-			recog.base.match_token(T__18,&mut recog.err_handler)?;
+			recog.base.set_state(117);
+			recog.base.match_token(T__21,&mut recog.err_handler)?;
 
-			recog.base.set_state(96);
+			recog.base.set_state(118);
 			recog.base.match_token(Identifier,&mut recog.err_handler)?;
 
-			recog.base.set_state(99);
+			recog.base.set_state(121);
 			recog.err_handler.sync(&mut recog.base)?;
 			_la = recog.base.input.la(1);
-			if _la==T__15 {
+			if _la==T__17 {
 				{
-				recog.base.set_state(97);
-				recog.base.match_token(T__15,&mut recog.err_handler)?;
+				recog.base.set_state(119);
+				recog.base.match_token(T__17,&mut recog.err_handler)?;
 
 				/*InvokeRule expr*/
-				recog.base.set_state(98);
+				recog.base.set_state(120);
 				recog.expr()?;
 
 				}
 			}
 
-			recog.base.set_state(101);
-			recog.base.match_token(T__16,&mut recog.err_handler)?;
+			recog.base.set_state(123);
+			recog.base.match_token(T__18,&mut recog.err_handler)?;
+
+			}
+			Ok(())
+		})();
+		match result {
+		Ok(_)=>{},
+        Err(e @ ANTLRError::FallThrough(_)) => return Err(e),
+		Err(ref re) => {
+				//_localctx.exception = re;
+				recog.err_handler.report_error(&mut recog.base, re);
+				recog.err_handler.recover(&mut recog.base, re)?;
+			}
+		}
+		recog.base.exit_rule();
+
+		Ok(_localctx)
+	}
+}
+//------------------- asNumber ----------------
+pub type AsNumberContextAll<'input> = AsNumberContext<'input>;
+
+
+pub type AsNumberContext<'input> = BaseParserRuleContext<'input,AsNumberContextExt<'input>>;
+
+#[derive(Clone)]
+pub struct AsNumberContextExt<'input>{
+ph:PhantomData<&'input str>
+}
+
+impl<'input> MiniImpParserContext<'input> for AsNumberContext<'input>{}
+
+impl<'input,'a> Listenable<dyn MiniImpListener<'input> + 'a> for AsNumberContext<'input>{
+		fn enter(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
+			listener.enter_every_rule(self);
+			listener.enter_asNumber(self);
+		}fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
+			listener.exit_asNumber(self);
+			listener.exit_every_rule(self);
+		}
+}
+
+impl<'input> CustomRuleContext<'input> for AsNumberContextExt<'input>{
+	type TF = LocalTokenFactory<'input>;
+	type Ctx = MiniImpParserContextType;
+	fn get_rule_index(&self) -> usize { RULE_asNumber }
+	//fn type_rule_index() -> usize where Self: Sized { RULE_asNumber }
+}
+antlr_rust::tid!{AsNumberContextExt<'a>}
+
+impl<'input> AsNumberContextExt<'input>{
+	fn new(parent: Option<Rc<dyn MiniImpParserContext<'input> + 'input > >, invoking_state: isize) -> Rc<AsNumberContextAll<'input>> {
+		Rc::new(
+			BaseParserRuleContext::new_parser_ctx(parent, invoking_state,AsNumberContextExt{
+				ph:PhantomData
+			}),
+		)
+	}
+}
+
+pub trait AsNumberContextAttrs<'input>: MiniImpParserContext<'input> + BorrowMut<AsNumberContextExt<'input>>{
+
+fn variable(&self) -> Option<Rc<VariableContextAll<'input>>> where Self:Sized{
+	self.child_of_type(0)
+}
+
+}
+
+impl<'input> AsNumberContextAttrs<'input> for AsNumberContext<'input>{}
+
+impl<'input, I, H> MiniImpParser<'input, I, H>
+where
+    I: TokenStream<'input, TF = LocalTokenFactory<'input> > + TidAble<'input>,
+    H: ErrorStrategy<'input,BaseParserType<'input,I>>
+{
+	pub fn asNumber(&mut self,)
+	-> Result<Rc<AsNumberContextAll<'input>>,ANTLRError> {
+		let mut recog = self;
+		let _parentctx = recog.ctx.take();
+		let mut _localctx = AsNumberContextExt::new(_parentctx.clone(), recog.base.get_state());
+        recog.base.enter_rule(_localctx.clone(), 24, RULE_asNumber);
+        let mut _localctx: Rc<AsNumberContextAll> = _localctx;
+		let result: Result<(), ANTLRError> = (|| {
+
+			//recog.base.enter_outer_alt(_localctx.clone(), 1);
+			recog.base.enter_outer_alt(None, 1);
+			{
+			/*InvokeRule variable*/
+			recog.base.set_state(125);
+			recog.variable()?;
+
+			recog.base.set_state(126);
+			recog.base.match_token(T__22,&mut recog.err_handler)?;
+
+			}
+			Ok(())
+		})();
+		match result {
+		Ok(_)=>{},
+        Err(e @ ANTLRError::FallThrough(_)) => return Err(e),
+		Err(ref re) => {
+				//_localctx.exception = re;
+				recog.err_handler.report_error(&mut recog.base, re);
+				recog.err_handler.recover(&mut recog.base, re)?;
+			}
+		}
+		recog.base.exit_rule();
+
+		Ok(_localctx)
+	}
+}
+//------------------- asString ----------------
+pub type AsStringContextAll<'input> = AsStringContext<'input>;
+
+
+pub type AsStringContext<'input> = BaseParserRuleContext<'input,AsStringContextExt<'input>>;
+
+#[derive(Clone)]
+pub struct AsStringContextExt<'input>{
+ph:PhantomData<&'input str>
+}
+
+impl<'input> MiniImpParserContext<'input> for AsStringContext<'input>{}
+
+impl<'input,'a> Listenable<dyn MiniImpListener<'input> + 'a> for AsStringContext<'input>{
+		fn enter(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
+			listener.enter_every_rule(self);
+			listener.enter_asString(self);
+		}fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
+			listener.exit_asString(self);
+			listener.exit_every_rule(self);
+		}
+}
+
+impl<'input> CustomRuleContext<'input> for AsStringContextExt<'input>{
+	type TF = LocalTokenFactory<'input>;
+	type Ctx = MiniImpParserContextType;
+	fn get_rule_index(&self) -> usize { RULE_asString }
+	//fn type_rule_index() -> usize where Self: Sized { RULE_asString }
+}
+antlr_rust::tid!{AsStringContextExt<'a>}
+
+impl<'input> AsStringContextExt<'input>{
+	fn new(parent: Option<Rc<dyn MiniImpParserContext<'input> + 'input > >, invoking_state: isize) -> Rc<AsStringContextAll<'input>> {
+		Rc::new(
+			BaseParserRuleContext::new_parser_ctx(parent, invoking_state,AsStringContextExt{
+				ph:PhantomData
+			}),
+		)
+	}
+}
+
+pub trait AsStringContextAttrs<'input>: MiniImpParserContext<'input> + BorrowMut<AsStringContextExt<'input>>{
+
+fn variable(&self) -> Option<Rc<VariableContextAll<'input>>> where Self:Sized{
+	self.child_of_type(0)
+}
+
+}
+
+impl<'input> AsStringContextAttrs<'input> for AsStringContext<'input>{}
+
+impl<'input, I, H> MiniImpParser<'input, I, H>
+where
+    I: TokenStream<'input, TF = LocalTokenFactory<'input> > + TidAble<'input>,
+    H: ErrorStrategy<'input,BaseParserType<'input,I>>
+{
+	pub fn asString(&mut self,)
+	-> Result<Rc<AsStringContextAll<'input>>,ANTLRError> {
+		let mut recog = self;
+		let _parentctx = recog.ctx.take();
+		let mut _localctx = AsStringContextExt::new(_parentctx.clone(), recog.base.get_state());
+        recog.base.enter_rule(_localctx.clone(), 26, RULE_asString);
+        let mut _localctx: Rc<AsStringContextAll> = _localctx;
+		let result: Result<(), ANTLRError> = (|| {
+
+			//recog.base.enter_outer_alt(_localctx.clone(), 1);
+			recog.base.enter_outer_alt(None, 1);
+			{
+			/*InvokeRule variable*/
+			recog.base.set_state(128);
+			recog.variable()?;
+
+			recog.base.set_state(129);
+			recog.base.match_token(T__23,&mut recog.err_handler)?;
 
 			}
 			Ok(())
@@ -1614,7 +1998,7 @@ where
 		let mut recog = self;
 		let _parentctx = recog.ctx.take();
 		let mut _localctx = StmtsContextExt::new(_parentctx.clone(), recog.base.get_state());
-        recog.base.enter_rule(_localctx.clone(), 22, RULE_stmts);
+        recog.base.enter_rule(_localctx.clone(), 28, RULE_stmts);
         let mut _localctx: Rc<StmtsContextAll> = _localctx;
 		let mut _la: isize = -1;
 		let result: Result<(), ANTLRError> = (|| {
@@ -1623,22 +2007,22 @@ where
 			recog.base.enter_outer_alt(None, 1);
 			{
 			/*InvokeRule stmt*/
-			recog.base.set_state(103);
+			recog.base.set_state(131);
 			recog.stmt()?;
 
-			recog.base.set_state(107);
+			recog.base.set_state(135);
 			recog.err_handler.sync(&mut recog.base)?;
 			_la = recog.base.input.la(1);
-			while (((_la) & !0x3f) == 0 && ((1usize << _la) & ((1usize << T__10) | (1usize << T__13) | (1usize << T__14) | (1usize << T__17))) != 0) {
+			while (((_la) & !0x3f) == 0 && ((1usize << _la) & ((1usize << T__12) | (1usize << T__15) | (1usize << T__16) | (1usize << T__19))) != 0) {
 				{
 				{
 				/*InvokeRule stmt*/
-				recog.base.set_state(104);
+				recog.base.set_state(132);
 				recog.stmt()?;
 
 				}
 				}
-				recog.base.set_state(109);
+				recog.base.set_state(137);
 				recog.err_handler.sync(&mut recog.base)?;
 				_la = recog.base.input.la(1);
 			}
@@ -1723,7 +2107,7 @@ where
 		let mut recog = self;
 		let _parentctx = recog.ctx.take();
 		let mut _localctx = DeclsContextExt::new(_parentctx.clone(), recog.base.get_state());
-        recog.base.enter_rule(_localctx.clone(), 24, RULE_decls);
+        recog.base.enter_rule(_localctx.clone(), 30, RULE_decls);
         let mut _localctx: Rc<DeclsContextAll> = _localctx;
 		let mut _la: isize = -1;
 		let result: Result<(), ANTLRError> = (|| {
@@ -1732,22 +2116,22 @@ where
 			recog.base.enter_outer_alt(None, 1);
 			{
 			/*InvokeRule decl*/
-			recog.base.set_state(110);
+			recog.base.set_state(138);
 			recog.decl()?;
 
-			recog.base.set_state(114);
+			recog.base.set_state(142);
 			recog.err_handler.sync(&mut recog.base)?;
 			_la = recog.base.input.la(1);
-			while _la==T__18 {
+			while _la==T__21 {
 				{
 				{
 				/*InvokeRule decl*/
-				recog.base.set_state(111);
+				recog.base.set_state(139);
 				recog.decl()?;
 
 				}
 				}
-				recog.base.set_state(116);
+				recog.base.set_state(144);
 				recog.err_handler.sync(&mut recog.base)?;
 				_la = recog.base.input.la(1);
 			}
@@ -1832,7 +2216,7 @@ where
 		let mut recog = self;
 		let _parentctx = recog.ctx.take();
 		let mut _localctx = ScopeContextExt::new(_parentctx.clone(), recog.base.get_state());
-        recog.base.enter_rule(_localctx.clone(), 26, RULE_scope);
+        recog.base.enter_rule(_localctx.clone(), 32, RULE_scope);
         let mut _localctx: Rc<ScopeContextAll> = _localctx;
 		let mut _la: isize = -1;
 		let result: Result<(), ANTLRError> = (|| {
@@ -1840,35 +2224,35 @@ where
 			//recog.base.enter_outer_alt(_localctx.clone(), 1);
 			recog.base.enter_outer_alt(None, 1);
 			{
-			recog.base.set_state(117);
-			recog.base.match_token(T__19,&mut recog.err_handler)?;
+			recog.base.set_state(145);
+			recog.base.match_token(T__24,&mut recog.err_handler)?;
 
-			recog.base.set_state(119);
+			recog.base.set_state(147);
 			recog.err_handler.sync(&mut recog.base)?;
 			_la = recog.base.input.la(1);
-			if _la==T__18 {
+			if _la==T__21 {
 				{
 				/*InvokeRule decls*/
-				recog.base.set_state(118);
+				recog.base.set_state(146);
 				recog.decls()?;
 
 				}
 			}
 
-			recog.base.set_state(122);
+			recog.base.set_state(150);
 			recog.err_handler.sync(&mut recog.base)?;
 			_la = recog.base.input.la(1);
-			if (((_la) & !0x3f) == 0 && ((1usize << _la) & ((1usize << T__10) | (1usize << T__13) | (1usize << T__14) | (1usize << T__17))) != 0) {
+			if (((_la) & !0x3f) == 0 && ((1usize << _la) & ((1usize << T__12) | (1usize << T__15) | (1usize << T__16) | (1usize << T__19))) != 0) {
 				{
 				/*InvokeRule stmts*/
-				recog.base.set_state(121);
+				recog.base.set_state(149);
 				recog.stmts()?;
 
 				}
 			}
 
-			recog.base.set_state(124);
-			recog.base.match_token(T__20,&mut recog.err_handler)?;
+			recog.base.set_state(152);
+			recog.base.match_token(T__25,&mut recog.err_handler)?;
 
 			}
 			Ok(())
@@ -1950,17 +2334,17 @@ where
 		let mut recog = self;
 		let _parentctx = recog.ctx.take();
 		let mut _localctx = InitContextExt::new(_parentctx.clone(), recog.base.get_state());
-        recog.base.enter_rule(_localctx.clone(), 28, RULE_init);
+        recog.base.enter_rule(_localctx.clone(), 34, RULE_init);
         let mut _localctx: Rc<InitContextAll> = _localctx;
 		let result: Result<(), ANTLRError> = (|| {
 
 			//recog.base.enter_outer_alt(_localctx.clone(), 1);
 			recog.base.enter_outer_alt(None, 1);
 			{
-			recog.base.set_state(126);
-			recog.base.match_token(T__21,&mut recog.err_handler)?;
+			recog.base.set_state(154);
+			recog.base.match_token(T__26,&mut recog.err_handler)?;
 
-			recog.base.set_state(127);
+			recog.base.set_state(155);
 			recog.base.match_token(Identifier,&mut recog.err_handler)?;
 
 			}
@@ -2044,7 +2428,7 @@ where
 		let mut recog = self;
 		let _parentctx = recog.ctx.take();
 		let mut _localctx = ProgContextExt::new(_parentctx.clone(), recog.base.get_state());
-        recog.base.enter_rule(_localctx.clone(), 30, RULE_prog);
+        recog.base.enter_rule(_localctx.clone(), 36, RULE_prog);
         let mut _localctx: Rc<ProgContextAll> = _localctx;
 		let result: Result<(), ANTLRError> = (|| {
 
@@ -2052,11 +2436,11 @@ where
 			recog.base.enter_outer_alt(None, 1);
 			{
 			/*InvokeRule init*/
-			recog.base.set_state(129);
+			recog.base.set_state(157);
 			recog.init()?;
 
 			/*InvokeRule scope*/
-			recog.base.set_state(130);
+			recog.base.set_state(158);
 			recog.scope()?;
 
 			}
@@ -2098,67 +2482,81 @@ lazy_static! {
 
 const _serializedATN:&'static str =
 	"\x03\u{608b}\u{a72a}\u{8133}\u{b9ed}\u{417c}\u{3be7}\u{7786}\u{5964}\x03\
-	\x1b\u{87}\x04\x02\x09\x02\x04\x03\x09\x03\x04\x04\x09\x04\x04\x05\x09\x05\
+	\x20\u{a3}\x04\x02\x09\x02\x04\x03\x09\x03\x04\x04\x09\x04\x04\x05\x09\x05\
 	\x04\x06\x09\x06\x04\x07\x09\x07\x04\x08\x09\x08\x04\x09\x09\x09\x04\x0a\
 	\x09\x0a\x04\x0b\x09\x0b\x04\x0c\x09\x0c\x04\x0d\x09\x0d\x04\x0e\x09\x0e\
-	\x04\x0f\x09\x0f\x04\x10\x09\x10\x04\x11\x09\x11\x03\x02\x03\x02\x03\x02\
-	\x03\x02\x03\x02\x03\x02\x03\x02\x05\x02\x2a\x0a\x02\x03\x03\x03\x03\x03\
-	\x03\x07\x03\x2f\x0a\x03\x0c\x03\x0e\x03\x32\x0b\x03\x03\x04\x03\x04\x03\
-	\x04\x07\x04\x37\x0a\x04\x0c\x04\x0e\x04\x3a\x0b\x04\x03\x05\x03\x05\x03\
-	\x05\x03\x05\x03\x05\x03\x05\x03\x05\x05\x05\x43\x0a\x05\x03\x06\x03\x06\
-	\x03\x06\x03\x06\x05\x06\x49\x0a\x06\x03\x07\x03\x07\x03\x07\x03\x07\x03\
-	\x07\x03\x07\x03\x07\x03\x08\x03\x08\x03\x08\x03\x08\x03\x09\x03\x09\x03\
-	\x09\x03\x09\x03\x09\x03\x09\x03\x0a\x03\x0a\x03\x0a\x03\x0a\x03\x0b\x03\
-	\x0b\x03\x0c\x03\x0c\x03\x0c\x03\x0c\x05\x0c\x66\x0a\x0c\x03\x0c\x03\x0c\
-	\x03\x0d\x03\x0d\x07\x0d\x6c\x0a\x0d\x0c\x0d\x0e\x0d\x6f\x0b\x0d\x03\x0e\
-	\x03\x0e\x07\x0e\x73\x0a\x0e\x0c\x0e\x0e\x0e\x76\x0b\x0e\x03\x0f\x03\x0f\
-	\x05\x0f\x7a\x0a\x0f\x03\x0f\x05\x0f\x7d\x0a\x0f\x03\x0f\x03\x0f\x03\x10\
-	\x03\x10\x03\x10\x03\x11\x03\x11\x03\x11\x03\x11\x02\x02\x12\x02\x04\x06\
-	\x08\x0a\x0c\x0e\x10\x12\x14\x16\x18\x1a\x1c\x1e\x20\x02\x04\x03\x02\x07\
-	\x08\x03\x02\x09\x0a\x02\u{86}\x02\x29\x03\x02\x02\x02\x04\x2b\x03\x02\x02\
-	\x02\x06\x33\x03\x02\x02\x02\x08\x42\x03\x02\x02\x02\x0a\x48\x03\x02\x02\
-	\x02\x0c\x4a\x03\x02\x02\x02\x0e\x51\x03\x02\x02\x02\x10\x55\x03\x02\x02\
-	\x02\x12\x5b\x03\x02\x02\x02\x14\x5f\x03\x02\x02\x02\x16\x61\x03\x02\x02\
-	\x02\x18\x69\x03\x02\x02\x02\x1a\x70\x03\x02\x02\x02\x1c\x77\x03\x02\x02\
-	\x02\x1e\u{80}\x03\x02\x02\x02\x20\u{83}\x03\x02\x02\x02\x22\x2a\x07\x03\
-	\x02\x02\x23\x2a\x07\x04\x02\x02\x24\x25\x07\x05\x02\x02\x25\x2a\x05\x02\
-	\x02\x02\x26\x27\x07\x06\x02\x02\x27\x28\x07\x19\x02\x02\x28\x2a\x05\x04\
-	\x03\x02\x29\x22\x03\x02\x02\x02\x29\x23\x03\x02\x02\x02\x29\x24\x03\x02\
-	\x02\x02\x29\x26\x03\x02\x02\x02\x2a\x03\x03\x02\x02\x02\x2b\x30\x05\x06\
-	\x04\x02\x2c\x2d\x09\x02\x02\x02\x2d\x2f\x05\x06\x04\x02\x2e\x2c\x03\x02\
-	\x02\x02\x2f\x32\x03\x02\x02\x02\x30\x2e\x03\x02\x02\x02\x30\x31\x03\x02\
-	\x02\x02\x31\x05\x03\x02\x02\x02\x32\x30\x03\x02\x02\x02\x33\x38\x05\x08\
-	\x05\x02\x34\x35\x09\x03\x02\x02\x35\x37\x05\x08\x05\x02\x36\x34\x03\x02\
-	\x02\x02\x37\x3a\x03\x02\x02\x02\x38\x36\x03\x02\x02\x02\x38\x39\x03\x02\
-	\x02\x02\x39\x07\x03\x02\x02\x02\x3a\x38\x03\x02\x02\x02\x3b\x3c\x07\x0b\
-	\x02\x02\x3c\x3d\x05\x04\x03\x02\x3d\x3e\x07\x0c\x02\x02\x3e\x43\x03\x02\
-	\x02\x02\x3f\x43\x05\x02\x02\x02\x40\x43\x07\x19\x02\x02\x41\x43\x07\x1a\
-	\x02\x02\x42\x3b\x03\x02\x02\x02\x42\x3f\x03\x02\x02\x02\x42\x40\x03\x02\
-	\x02\x02\x42\x41\x03\x02\x02\x02\x43\x09\x03\x02\x02\x02\x44\x49\x05\x0c\
-	\x07\x02\x45\x49\x05\x0e\x08\x02\x46\x49\x05\x10\x09\x02\x47\x49\x05\x12\
-	\x0a\x02\x48\x44\x03\x02\x02\x02\x48\x45\x03\x02\x02\x02\x48\x46\x03\x02\
-	\x02\x02\x48\x47\x03\x02\x02\x02\x49\x0b\x03\x02\x02\x02\x4a\x4b\x07\x0d\
-	\x02\x02\x4b\x4c\x05\x04\x03\x02\x4c\x4d\x07\x0e\x02\x02\x4d\x4e\x05\x1c\
-	\x0f\x02\x4e\x4f\x07\x0f\x02\x02\x4f\x50\x05\x1c\x0f\x02\x50\x0d\x03\x02\
-	\x02\x02\x51\x52\x07\x10\x02\x02\x52\x53\x05\x04\x03\x02\x53\x54\x05\x1c\
-	\x0f\x02\x54\x0f\x03\x02\x02\x02\x55\x56\x07\x11\x02\x02\x56\x57\x07\x19\
-	\x02\x02\x57\x58\x07\x12\x02\x02\x58\x59\x05\x04\x03\x02\x59\x5a\x07\x13\
-	\x02\x02\x5a\x11\x03\x02\x02\x02\x5b\x5c\x07\x14\x02\x02\x5c\x5d\x05\x04\
-	\x03\x02\x5d\x5e\x07\x13\x02\x02\x5e\x13\x03\x02\x02\x02\x5f\x60\x05\x16\
-	\x0c\x02\x60\x15\x03\x02\x02\x02\x61\x62\x07\x15\x02\x02\x62\x65\x07\x19\
-	\x02\x02\x63\x64\x07\x12\x02\x02\x64\x66\x05\x04\x03\x02\x65\x63\x03\x02\
-	\x02\x02\x65\x66\x03\x02\x02\x02\x66\x67\x03\x02\x02\x02\x67\x68\x07\x13\
-	\x02\x02\x68\x17\x03\x02\x02\x02\x69\x6d\x05\x0a\x06\x02\x6a\x6c\x05\x0a\
-	\x06\x02\x6b\x6a\x03\x02\x02\x02\x6c\x6f\x03\x02\x02\x02\x6d\x6b\x03\x02\
-	\x02\x02\x6d\x6e\x03\x02\x02\x02\x6e\x19\x03\x02\x02\x02\x6f\x6d\x03\x02\
-	\x02\x02\x70\x74\x05\x14\x0b\x02\x71\x73\x05\x14\x0b\x02\x72\x71\x03\x02\
-	\x02\x02\x73\x76\x03\x02\x02\x02\x74\x72\x03\x02\x02\x02\x74\x75\x03\x02\
-	\x02\x02\x75\x1b\x03\x02\x02\x02\x76\x74\x03\x02\x02\x02\x77\x79\x07\x16\
-	\x02\x02\x78\x7a\x05\x1a\x0e\x02\x79\x78\x03\x02\x02\x02\x79\x7a\x03\x02\
-	\x02\x02\x7a\x7c\x03\x02\x02\x02\x7b\x7d\x05\x18\x0d\x02\x7c\x7b\x03\x02\
-	\x02\x02\x7c\x7d\x03\x02\x02\x02\x7d\x7e\x03\x02\x02\x02\x7e\x7f\x07\x17\
-	\x02\x02\x7f\x1d\x03\x02\x02\x02\u{80}\u{81}\x07\x18\x02\x02\u{81}\u{82}\
-	\x07\x19\x02\x02\u{82}\x1f\x03\x02\x02\x02\u{83}\u{84}\x05\x1e\x10\x02\u{84}\
-	\u{85}\x05\x1c\x0f\x02\u{85}\x21\x03\x02\x02\x02\x0c\x29\x30\x38\x42\x48\
-	\x65\x6d\x74\x79\x7c";
+	\x04\x0f\x09\x0f\x04\x10\x09\x10\x04\x11\x09\x11\x04\x12\x09\x12\x04\x13\
+	\x09\x13\x04\x14\x09\x14\x03\x02\x03\x02\x03\x02\x03\x02\x03\x02\x03\x02\
+	\x03\x02\x03\x02\x05\x02\x31\x0a\x02\x03\x02\x03\x02\x03\x02\x03\x02\x03\
+	\x02\x03\x02\x07\x02\x39\x0a\x02\x0c\x02\x0e\x02\x3c\x0b\x02\x03\x03\x03\
+	\x03\x03\x03\x07\x03\x41\x0a\x03\x0c\x03\x0e\x03\x44\x0b\x03\x03\x04\x03\
+	\x04\x03\x04\x07\x04\x49\x0a\x04\x0c\x04\x0e\x04\x4c\x0b\x04\x03\x05\x03\
+	\x05\x03\x05\x03\x05\x03\x05\x03\x05\x03\x05\x05\x05\x55\x0a\x05\x03\x06\
+	\x03\x06\x03\x06\x03\x06\x05\x06\x5b\x0a\x06\x03\x07\x03\x07\x03\x07\x03\
+	\x07\x03\x07\x03\x07\x03\x07\x03\x08\x03\x08\x03\x08\x03\x08\x03\x09\x03\
+	\x09\x03\x09\x03\x09\x03\x09\x03\x09\x03\x0a\x03\x0a\x03\x0a\x03\x0a\x03\
+	\x0b\x03\x0b\x03\x0b\x03\x0b\x03\x0c\x03\x0c\x03\x0d\x03\x0d\x03\x0d\x03\
+	\x0d\x05\x0d\x7c\x0a\x0d\x03\x0d\x03\x0d\x03\x0e\x03\x0e\x03\x0e\x03\x0f\
+	\x03\x0f\x03\x0f\x03\x10\x03\x10\x07\x10\u{88}\x0a\x10\x0c\x10\x0e\x10\u{8b}\
+	\x0b\x10\x03\x11\x03\x11\x07\x11\u{8f}\x0a\x11\x0c\x11\x0e\x11\u{92}\x0b\
+	\x11\x03\x12\x03\x12\x05\x12\u{96}\x0a\x12\x03\x12\x05\x12\u{99}\x0a\x12\
+	\x03\x12\x03\x12\x03\x13\x03\x13\x03\x13\x03\x14\x03\x14\x03\x14\x03\x14\
+	\x02\x03\x02\x15\x02\x04\x06\x08\x0a\x0c\x0e\x10\x12\x14\x16\x18\x1a\x1c\
+	\x1e\x20\x22\x24\x26\x02\x04\x03\x02\x09\x0a\x03\x02\x0b\x0c\x02\u{a1}\x02\
+	\x30\x03\x02\x02\x02\x04\x3d\x03\x02\x02\x02\x06\x45\x03\x02\x02\x02\x08\
+	\x54\x03\x02\x02\x02\x0a\x5a\x03\x02\x02\x02\x0c\x5c\x03\x02\x02\x02\x0e\
+	\x63\x03\x02\x02\x02\x10\x67\x03\x02\x02\x02\x12\x6d\x03\x02\x02\x02\x14\
+	\x71\x03\x02\x02\x02\x16\x75\x03\x02\x02\x02\x18\x77\x03\x02\x02\x02\x1a\
+	\x7f\x03\x02\x02\x02\x1c\u{82}\x03\x02\x02\x02\x1e\u{85}\x03\x02\x02\x02\
+	\x20\u{8c}\x03\x02\x02\x02\x22\u{93}\x03\x02\x02\x02\x24\u{9c}\x03\x02\x02\
+	\x02\x26\u{9f}\x03\x02\x02\x02\x28\x29\x08\x02\x01\x02\x29\x31\x07\x03\x02\
+	\x02\x2a\x31\x07\x04\x02\x02\x2b\x2c\x07\x05\x02\x02\x2c\x31\x05\x02\x02\
+	\x06\x2d\x2e\x07\x06\x02\x02\x2e\x2f\x07\x1e\x02\x02\x2f\x31\x05\x04\x03\
+	\x02\x30\x28\x03\x02\x02\x02\x30\x2a\x03\x02\x02\x02\x30\x2b\x03\x02\x02\
+	\x02\x30\x2d\x03\x02\x02\x02\x31\x3a\x03\x02\x02\x02\x32\x33\x0c\x04\x02\
+	\x02\x33\x34\x07\x07\x02\x02\x34\x39\x05\x02\x02\x05\x35\x36\x0c\x03\x02\
+	\x02\x36\x37\x07\x08\x02\x02\x37\x39\x05\x02\x02\x04\x38\x32\x03\x02\x02\
+	\x02\x38\x35\x03\x02\x02\x02\x39\x3c\x03\x02\x02\x02\x3a\x38\x03\x02\x02\
+	\x02\x3a\x3b\x03\x02\x02\x02\x3b\x03\x03\x02\x02\x02\x3c\x3a\x03\x02\x02\
+	\x02\x3d\x42\x05\x06\x04\x02\x3e\x3f\x09\x02\x02\x02\x3f\x41\x05\x06\x04\
+	\x02\x40\x3e\x03\x02\x02\x02\x41\x44\x03\x02\x02\x02\x42\x40\x03\x02\x02\
+	\x02\x42\x43\x03\x02\x02\x02\x43\x05\x03\x02\x02\x02\x44\x42\x03\x02\x02\
+	\x02\x45\x4a\x05\x08\x05\x02\x46\x47\x09\x03\x02\x02\x47\x49\x05\x08\x05\
+	\x02\x48\x46\x03\x02\x02\x02\x49\x4c\x03\x02\x02\x02\x4a\x48\x03\x02\x02\
+	\x02\x4a\x4b\x03\x02\x02\x02\x4b\x07\x03\x02\x02\x02\x4c\x4a\x03\x02\x02\
+	\x02\x4d\x4e\x07\x0d\x02\x02\x4e\x4f\x05\x04\x03\x02\x4f\x50\x07\x0e\x02\
+	\x02\x50\x55\x03\x02\x02\x02\x51\x55\x05\x02\x02\x02\x52\x55\x07\x1e\x02\
+	\x02\x53\x55\x07\x1f\x02\x02\x54\x4d\x03\x02\x02\x02\x54\x51\x03\x02\x02\
+	\x02\x54\x52\x03\x02\x02\x02\x54\x53\x03\x02\x02\x02\x55\x09\x03\x02\x02\
+	\x02\x56\x5b\x05\x0c\x07\x02\x57\x5b\x05\x0e\x08\x02\x58\x5b\x05\x10\x09\
+	\x02\x59\x5b\x05\x12\x0a\x02\x5a\x56\x03\x02\x02\x02\x5a\x57\x03\x02\x02\
+	\x02\x5a\x58\x03\x02\x02\x02\x5a\x59\x03\x02\x02\x02\x5b\x0b\x03\x02\x02\
+	\x02\x5c\x5d\x07\x0f\x02\x02\x5d\x5e\x05\x04\x03\x02\x5e\x5f\x07\x10\x02\
+	\x02\x5f\x60\x05\x22\x12\x02\x60\x61\x07\x11\x02\x02\x61\x62\x05\x22\x12\
+	\x02\x62\x0d\x03\x02\x02\x02\x63\x64\x07\x12\x02\x02\x64\x65\x05\x04\x03\
+	\x02\x65\x66\x05\x22\x12\x02\x66\x0f\x03\x02\x02\x02\x67\x68\x07\x13\x02\
+	\x02\x68\x69\x07\x1e\x02\x02\x69\x6a\x07\x14\x02\x02\x6a\x6b\x05\x04\x03\
+	\x02\x6b\x6c\x07\x15\x02\x02\x6c\x11\x03\x02\x02\x02\x6d\x6e\x07\x16\x02\
+	\x02\x6e\x6f\x05\x04\x03\x02\x6f\x70\x07\x15\x02\x02\x70\x13\x03\x02\x02\
+	\x02\x71\x72\x07\x17\x02\x02\x72\x73\x05\x04\x03\x02\x73\x74\x07\x15\x02\
+	\x02\x74\x15\x03\x02\x02\x02\x75\x76\x05\x18\x0d\x02\x76\x17\x03\x02\x02\
+	\x02\x77\x78\x07\x18\x02\x02\x78\x7b\x07\x1e\x02\x02\x79\x7a\x07\x14\x02\
+	\x02\x7a\x7c\x05\x04\x03\x02\x7b\x79\x03\x02\x02\x02\x7b\x7c\x03\x02\x02\
+	\x02\x7c\x7d\x03\x02\x02\x02\x7d\x7e\x07\x15\x02\x02\x7e\x19\x03\x02\x02\
+	\x02\x7f\u{80}\x05\x18\x0d\x02\u{80}\u{81}\x07\x19\x02\x02\u{81}\x1b\x03\
+	\x02\x02\x02\u{82}\u{83}\x05\x18\x0d\x02\u{83}\u{84}\x07\x1a\x02\x02\u{84}\
+	\x1d\x03\x02\x02\x02\u{85}\u{89}\x05\x0a\x06\x02\u{86}\u{88}\x05\x0a\x06\
+	\x02\u{87}\u{86}\x03\x02\x02\x02\u{88}\u{8b}\x03\x02\x02\x02\u{89}\u{87}\
+	\x03\x02\x02\x02\u{89}\u{8a}\x03\x02\x02\x02\u{8a}\x1f\x03\x02\x02\x02\u{8b}\
+	\u{89}\x03\x02\x02\x02\u{8c}\u{90}\x05\x16\x0c\x02\u{8d}\u{8f}\x05\x16\x0c\
+	\x02\u{8e}\u{8d}\x03\x02\x02\x02\u{8f}\u{92}\x03\x02\x02\x02\u{90}\u{8e}\
+	\x03\x02\x02\x02\u{90}\u{91}\x03\x02\x02\x02\u{91}\x21\x03\x02\x02\x02\u{92}\
+	\u{90}\x03\x02\x02\x02\u{93}\u{95}\x07\x1b\x02\x02\u{94}\u{96}\x05\x20\x11\
+	\x02\u{95}\u{94}\x03\x02\x02\x02\u{95}\u{96}\x03\x02\x02\x02\u{96}\u{98}\
+	\x03\x02\x02\x02\u{97}\u{99}\x05\x1e\x10\x02\u{98}\u{97}\x03\x02\x02\x02\
+	\u{98}\u{99}\x03\x02\x02\x02\u{99}\u{9a}\x03\x02\x02\x02\u{9a}\u{9b}\x07\
+	\x1c\x02\x02\u{9b}\x23\x03\x02\x02\x02\u{9c}\u{9d}\x07\x1d\x02\x02\u{9d}\
+	\u{9e}\x07\x1e\x02\x02\u{9e}\x25\x03\x02\x02\x02\u{9f}\u{a0}\x05\x24\x13\
+	\x02\u{a0}\u{a1}\x05\x22\x12\x02\u{a1}\x27\x03\x02\x02\x02\x0e\x30\x38\x3a\
+	\x42\x4a\x54\x5a\x7b\u{89}\u{90}\u{95}\u{98}";
 
