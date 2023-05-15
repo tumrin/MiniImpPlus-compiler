@@ -1,5 +1,7 @@
 use antlr_rust::{
-    common_token_stream::CommonTokenStream, token::GenericToken, InputStream, Parser,
+    common_token_stream::CommonTokenStream,
+    token::{GenericToken, Token},
+    InputStream, Parser,
 };
 use mini_imp::miniimpparser::MiniImpParser;
 use mini_imp_plus::{languages::rust::Rust, MiniImpPlus, TranslateMiniImpPlus};
@@ -33,7 +35,15 @@ fn main() {
         let current = parser.get_current_token().clone();
         let stream = parser.get_input_stream_mut();
 
-        let token = handle_token(previous_token.clone(), current.clone(), stream.la(2), &Rust);
+        // if next is not last add 1 to index, yes this is hacky
+        let next_index = if stream.la(2) != -1 {
+            current.get_token_index() + 1
+        } else {
+            current.get_token_index()
+        };
+        let next = stream.get(next_index).clone();
+
+        let token = handle_token(previous_token.clone(), current.clone(), next, &Rust);
         print!("{token}");
         previous_token = Some(current);
         if stream.la(1) != -1 {
@@ -47,12 +57,12 @@ fn main() {
 fn handle_token(
     previous: Option<Box<GenericToken<Cow<str>>>>,
     current: Box<GenericToken<Cow<str>>>,
-    next: isize,
+    next: Box<GenericToken<Cow<str>>>,
     language: &impl TranslateMiniImpPlus,
 ) -> String {
     language.translate(
-        MiniImpPlus::from(current.token_type),
-        previous.map(|token| MiniImpPlus::from(token.token_type)),
+        MiniImpPlus::from(current),
+        previous.map(|token| MiniImpPlus::from(token)),
         MiniImpPlus::from(next),
     )
 }

@@ -1,5 +1,5 @@
 use antlr_rust::token::GenericToken;
-use std::{fmt::Display, usize};
+use std::{borrow::Cow, fmt::Display, usize};
 
 pub mod languages;
 
@@ -31,7 +31,7 @@ pub enum MiniImpPlus {
     Begin,
     End,
     Program,
-    Identifier,
+    Identifier(String), // Value of identifier
     Number,
     Unknown,
 }
@@ -40,9 +40,9 @@ impl Display for MiniImpPlus {
         write!(f, "{}", self)
     }
 }
-impl From<isize> for MiniImpPlus {
-    fn from(value: isize) -> Self {
-        match value {
+impl From<Box<GenericToken<Cow<'_, str>>>> for MiniImpPlus {
+    fn from(token: Box<GenericToken<Cow<str>>>) -> Self {
+        match token.token_type {
             1 => MiniImpPlus::True,
             2 => MiniImpPlus::False,
             3 => MiniImpPlus::Not,
@@ -70,7 +70,7 @@ impl From<isize> for MiniImpPlus {
             25 => MiniImpPlus::Begin,
             26 => MiniImpPlus::End,
             27 => MiniImpPlus::Program,
-            28 => MiniImpPlus::Identifier,
+            28 => MiniImpPlus::Identifier(token.text.to_string()),
             29 => MiniImpPlus::Number,
             _ => MiniImpPlus::Unknown,
         }

@@ -14,7 +14,7 @@ impl TranslateMiniImpPlus for Rust {
             MiniImpPlus::False => "false".to_string(),
             MiniImpPlus::Not => "!".to_string(),
             MiniImpPlus::Is => {
-                if let MiniImpPlus::Identifier = next {
+                if let MiniImpPlus::Identifier(_) = next {
                     // Skip if next is an identifier
                     "".to_string()
                 } else if let MiniImpPlus::Not = previous.unwrap_or(MiniImpPlus::Unknown) {
@@ -47,18 +47,18 @@ impl TranslateMiniImpPlus for Rust {
             MiniImpPlus::Begin => "{\n".to_string(),
             MiniImpPlus::End => "}\n".to_string(),
             MiniImpPlus::Program => "fn main()".to_string(),
-            MiniImpPlus::Identifier => previous.map_or_else(
-                || format!("{}", "a"),
+            MiniImpPlus::Identifier(value) => previous.map_or_else(
+                || format!("{}", value),
                 |prev| match prev {
                     MiniImpPlus::Write => {
-                        format!("(\"{{{}}}\")", "a")
+                        format!("(\"{{{}}}\")", value)
                     }
                     MiniImpPlus::Is => {
-                        format!("({} == ", "a")
+                        format!("({} == ", value)
                     }
                     MiniImpPlus::Program => "".to_string(),
-                    MiniImpPlus::Identifier => format!("{})", "a"),
-                    _ => format!("{}", "a"),
+                    MiniImpPlus::Identifier(_) => format!("{})", value),
+                    _ => format!("{}", value),
                 },
             ),
             MiniImpPlus::Number => "0".to_string(),
