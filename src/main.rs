@@ -10,17 +10,23 @@ use std::{borrow::Cow, fs};
 mod mini_imp;
 
 fn main() {
+    // let test = "program CALCULATOR\n
+    // begin\n
+    // var PI = 3;\n
+    // var ANSWER = PI;\n
+    // var X = 9;\n
+    // \n
+    // while not is X PI begin\n
+    // set ANSWER = ANSWER + X;\n
+    // set X = X - 1;\n
+    // end.\n
+    // \n
+    // write ANSWER;\n
+    // \n
+    // end.\n";
     let test = "program CALCULATOR\n
     begin\n
-    var PI = 3;\n
-    var ANSWER = PI;\n
-    var X = 9;\n
-    \n
-    while not is X PI begin\n
-    set ANSWER = ANSWER + X;\n
-    set X = X - 1;\n
-    end.\n
-    \n
+    read ANSWER;\n
     write ANSWER;\n
     \n
     end.\n";
@@ -66,56 +72,3 @@ fn handle_token(
         MiniImpPlus::from(next),
     )
 }
-// 'true'=1
-// 'false'=2
-// 'not'=3
-// 'is'=4
-// 'or'=5
-// 'and'=6
-// '+'=7
-// '-'=8
-// '*'=9
-// '/'=10
-// '('=11
-// ')'=12
-// 'if'=13
-// 'then'=14
-// 'else'=15
-// 'while'=16
-// 'set'=17
-// '='=18
-// ';'=19
-// 'write'=20
-// 'read'=21
-// 'var'=22
-// 'asNumber'=23
-// 'asString'=24
-// 'begin'=25
-// 'end.'=26
-// 'program'=27
-
-// Identifier=23
-// Number=24
-// WS=25
-// 'true'=1
-// 'false'=2
-// 'not'=3
-// 'is'=4
-// '+'=5
-// '-'=6
-// '*'=7
-// '/'=8
-// '('=9
-// ')'=10
-// 'if'=11
-// 'then'=12
-// 'else'=13
-// 'while'=14
-// 'set'=15
-// '='=16
-// ';'=17
-// 'write'=18
-// 'var'=19
-// 'begin'=20
-// 'end.'=21
-// 'program'=22

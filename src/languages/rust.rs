@@ -55,7 +55,7 @@ impl TranslateMiniImpPlus for Rust {
                     MiniImpPlus::Write => {
                         format!("(\"{{{}}}\")", value)
                     },
-                    MiniImpPlus::Read => {format!("let mut {value} = String::new();\n io::stdin().read_line(&mut line).unwrap();\n")},
+                    MiniImpPlus::Read => {format!("let mut {value} = String::new();\nstd::io::stdin().read_line(&mut {value}).unwrap()")},
                     MiniImpPlus::Is => {
                         format!("({} == ", value)
                     }
@@ -73,92 +73,3 @@ impl TranslateMiniImpPlus for Rust {
         }
     }
 }
-// 1 => {
-//     print!("true");
-// }
-// 2 => {
-//     print!("false");
-// }
-// 3 => {
-//     print!("!");
-// }
-// 4 => {
-// }
-// 5 => {
-//     print!("+");
-// }
-// 6 => {
-//     print!("-");
-// }
-// 7 => {
-//     print!("*");
-// }
-// 8 => {
-//     print!("/");
-// }
-// 9 => {
-//     print!("(");
-// }
-// 10 => {
-//     print!(")");
-// }
-// 11 => {
-//     print!("if");
-// }
-// 12 => {
-//     print!("then");
-// }
-// 13 => {
-//     print!("else");
-// }
-// 14 => {
-//     print!("while ");
-// }
-// 15 => {
-//     // Skip set
-// }
-// 16 => {
-//     print!(" = ");
-// }
-// 17 => {
-//     print!(";\n");
-// }
-// 18 => {
-//     print!("println!");
-// }
-// 19 => {
-//     PRINT!("LET MUT ");
-// }
-// 20 => {
-//     PRINT!(" {{\N");
-// }
-// 21 => {
-//     PRINT!("}}\N");
-// }
-// 22 => {
-//     PRINT!("FN MAIN()");
-// }
-// 23 =>
-// PREVIOUS.CLONE().MAP_OR_ELSE(
-//     || PRINT!("{}", CURRENT.TEXT),
-//     |PREV| MATCH PREV.TOKEN_TYPE {
-//         18 => {
-//             PRINT!("(\"{{{}}}\")", CURRENT.TEXT);
-//         }
-//         4 => {
-//             PRINT!("({} == ", CURRENT.TEXT)
-//         }
-//         22 => (),
-//         23 => PRINT!("{})", CURRENT.TEXT),
-//         _ => PRINT!("{}", CURRENT.TEXT),
-//     },
-// ),
-// 24 => {
-//     PRINT!("{}", CURRENT.TEXT);
-// }
-// 25 => {
-//     PRINT!("WS");
-// }
-// _ => {
-//     //PRINT!("UNKNOWN");
-// }
