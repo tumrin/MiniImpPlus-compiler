@@ -32,7 +32,7 @@ pub enum MiniImpPlus {
     End,
     Program,
     Identifier(String), // Value of identifier
-    Number,
+    Number(String),
     Unknown,
 }
 impl Display for MiniImpPlus {
@@ -71,7 +71,7 @@ impl From<Box<GenericToken<Cow<'_, str>>>> for MiniImpPlus {
             26 => MiniImpPlus::End,
             27 => MiniImpPlus::Program,
             28 => MiniImpPlus::Identifier(token.text.to_string()),
-            29 => MiniImpPlus::Number,
+            29 => MiniImpPlus::Number(token.text.to_string()),
             _ => MiniImpPlus::Unknown,
         }
     }

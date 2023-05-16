@@ -1,3 +1,5 @@
+use std::format;
+
 use crate::{MiniImpPlus, TranslateMiniImpPlus};
 
 pub struct Rust;
@@ -40,7 +42,7 @@ impl TranslateMiniImpPlus for Rust {
             MiniImpPlus::Equals => "=".to_string(),
             MiniImpPlus::Semicolon => ";\n".to_string(),
             MiniImpPlus::Write => "println!".to_string(),
-            MiniImpPlus::Read => todo!(),
+            MiniImpPlus::Read => "".to_string(), // Handled in identifier
             MiniImpPlus::Var => "let mut ".to_string(),
             MiniImpPlus::AsNumber => todo!(),
             MiniImpPlus::AsString => todo!(),
@@ -52,16 +54,21 @@ impl TranslateMiniImpPlus for Rust {
                 |prev| match prev {
                     MiniImpPlus::Write => {
                         format!("(\"{{{}}}\")", value)
-                    }
+                    },
+                    MiniImpPlus::Read => {format!("let mut {value} = String::new();\n io::stdin().read_line(&mut line).unwrap();\n")},
                     MiniImpPlus::Is => {
                         format!("({} == ", value)
                     }
                     MiniImpPlus::Program => "".to_string(),
                     MiniImpPlus::Identifier(_) => format!("{})", value),
-                    _ => format!("{}", value),
+                    _ => match next {
+                        MiniImpPlus::AsNumber => format!("{value}.parse::<i32>().unwrap()"),
+                        MiniImpPlus::AsString => format!("{value}.to_string()"),
+                        _ => format!("{}", value),
+                    }
                 },
             ),
-            MiniImpPlus::Number => "0".to_string(),
+            MiniImpPlus::Number(number) => number,
             MiniImpPlus::Unknown => "".to_string(),
         }
     }
