@@ -66,7 +66,8 @@ use std::any::{Any,TypeId};
 		pub const T__26:isize=27; 
 		pub const Identifier:isize=28; 
 		pub const Number:isize=29; 
-		pub const WS:isize=30;
+		pub const WS:isize=30; 
+		pub const STRING:isize=31;
 	pub const RULE_truth:usize = 0; 
 	pub const RULE_expr:usize = 1; 
 	pub const RULE_term:usize = 2; 
@@ -101,10 +102,11 @@ use std::any::{Any,TypeId};
 		Some("'var'"), Some("'asNumber'"), Some("'asString'"), Some("'begin'"), 
 		Some("'end.'"), Some("'program'")
 	];
-	pub const _SYMBOLIC_NAMES: [Option<&'static str>;31]  = [
+	pub const _SYMBOLIC_NAMES: [Option<&'static str>;32]  = [
 		None, None, None, None, None, None, None, None, None, None, None, None, 
 		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, None, Some("Identifier"), Some("Number"), Some("WS")
+		None, None, None, None, Some("Identifier"), Some("Number"), Some("WS"), 
+		Some("STRING")
 	];
 	lazy_static!{
 	    static ref _shared_context_cache: Arc<PredictionContextCache> = Arc::new(PredictionContextCache::new());
@@ -2482,7 +2484,7 @@ lazy_static! {
 
 const _serializedATN:&'static str =
 	"\x03\u{608b}\u{a72a}\u{8133}\u{b9ed}\u{417c}\u{3be7}\u{7786}\u{5964}\x03\
-	\x20\u{a3}\x04\x02\x09\x02\x04\x03\x09\x03\x04\x04\x09\x04\x04\x05\x09\x05\
+	\x21\u{a3}\x04\x02\x09\x02\x04\x03\x09\x03\x04\x04\x09\x04\x04\x05\x09\x05\
 	\x04\x06\x09\x06\x04\x07\x09\x07\x04\x08\x09\x08\x04\x09\x09\x09\x04\x0a\
 	\x09\x0a\x04\x0b\x09\x0b\x04\x0c\x09\x0c\x04\x0d\x09\x0d\x04\x0e\x09\x0e\
 	\x04\x0f\x09\x0f\x04\x10\x09\x10\x04\x11\x09\x11\x04\x12\x09\x12\x04\x13\

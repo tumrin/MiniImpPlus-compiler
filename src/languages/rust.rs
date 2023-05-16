@@ -49,26 +49,30 @@ impl TranslateMiniImpPlus for Rust {
             MiniImpPlus::Begin => "{\n".to_string(),
             MiniImpPlus::End => "}\n".to_string(),
             MiniImpPlus::Program => "fn main()".to_string(),
-            MiniImpPlus::Identifier(value) => previous.map_or_else(
-                || format!("{}", value),
-                |prev| match prev {
-                    MiniImpPlus::Write => {
-                        format!("(\"{{{}}}\")", value)
-                    },
-                    MiniImpPlus::Read => {format!("let mut {value} = String::new();\nstd::io::stdin().read_line(&mut {value}).unwrap()")},
-                    MiniImpPlus::Is => {
-                        format!("({} == ", value)
-                    }
-                    MiniImpPlus::Program => "".to_string(),
-                    MiniImpPlus::Identifier(_) => format!("{})", value),
-                    _ => match next {
-                        MiniImpPlus::AsNumber => format!("{value}.parse::<i32>().unwrap()"),
-                        MiniImpPlus::AsString => format!("{value}.to_string()"),
-                        _ => format!("{}", value),
-                    }
+            MiniImpPlus::Identifier(value) => match previous {
+                Some(MiniImpPlus::Write) => {
+                    format!("(\"{{{}}}\")", value)
+                }
+                Some(MiniImpPlus::Read) => {
+                    format!("let mut {value} = String::new();\nstd::io::stdin().read_line(&mut {value}).unwrap()")
+                }
+                Some(MiniImpPlus::Is) => {
+                    format!("({} == ", value)
+                }
+                Some(MiniImpPlus::Program) => "".to_string(),
+                Some(MiniImpPlus::Identifier(_)) => format!("{})", value),
+                Some(_) | None => match next {
+                    MiniImpPlus::AsNumber => format!("{value}.parse::<i32>().unwrap()"),
+                    MiniImpPlus::AsString => format!("{value}.to_string()"),
+                    _ => value,
                 },
-            ),
+            },
             MiniImpPlus::Number(number) => number,
+            MiniImpPlus::WhiteSpace => "".to_string(),
+            MiniImpPlus::String(value) => match previous {
+                Some(MiniImpPlus::Write) => format!("({value})"),
+                None | Some(_) => value,
+            },
             MiniImpPlus::Unknown => "".to_string(),
         }
     }

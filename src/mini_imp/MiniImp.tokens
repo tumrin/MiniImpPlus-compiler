@@ -28,6 +28,7 @@ T__26=27
 Identifier=28
 Number=29
 WS=30
+STRING=31
 'true'=1
 'false'=2
 'not'=3

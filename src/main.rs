@@ -26,6 +26,7 @@ fn main() {
     // end.\n";
     let test = "program CALCULATOR\n
     begin\n
+    write \"please insert an number\";
     read ANSWER;\n
     write ANSWER;\n
     \n
@@ -68,7 +69,7 @@ fn handle_token(
 ) -> String {
     language.translate(
         MiniImpPlus::from(current),
-        previous.map(|token| MiniImpPlus::from(token)),
+        previous.map(MiniImpPlus::from),
         MiniImpPlus::from(next),
     )
 }

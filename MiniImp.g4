@@ -31,3 +31,4 @@ init  : 'program' Identifier ;
 prog  : init scope ;
 
 WS : [ \t\n\r] + -> skip ;
+STRING : '"' ~('"')* '"' ;

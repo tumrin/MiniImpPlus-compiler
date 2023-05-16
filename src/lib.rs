@@ -1,5 +1,5 @@
 use antlr_rust::token::GenericToken;
-use std::{borrow::Cow, fmt::Display, usize};
+use std::borrow::Cow;
 
 pub mod languages;
 
@@ -33,12 +33,9 @@ pub enum MiniImpPlus {
     Program,
     Identifier(String), // Value of identifier
     Number(String),
+    WhiteSpace,
+    String(String),
     Unknown,
-}
-impl Display for MiniImpPlus {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self)
-    }
 }
 impl From<Box<GenericToken<Cow<'_, str>>>> for MiniImpPlus {
     fn from(token: Box<GenericToken<Cow<str>>>) -> Self {
@@ -72,6 +69,8 @@ impl From<Box<GenericToken<Cow<'_, str>>>> for MiniImpPlus {
             27 => MiniImpPlus::Program,
             28 => MiniImpPlus::Identifier(token.text.to_string()),
             29 => MiniImpPlus::Number(token.text.to_string()),
+            30 => MiniImpPlus::WhiteSpace,
+            31 => MiniImpPlus::String(token.text.to_string()),
             _ => MiniImpPlus::Unknown,
         }
     }
