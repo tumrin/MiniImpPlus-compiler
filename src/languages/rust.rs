@@ -1,6 +1,6 @@
-use std::format;
-
+//! This module is for implementing mini imp plus to Rust translation
 use crate::{MiniImpPlus, TranslateMiniImpPlus};
+use std::format;
 
 pub struct Rust;
 
@@ -44,8 +44,8 @@ impl TranslateMiniImpPlus for Rust {
             MiniImpPlus::Write => "println!".to_string(),
             MiniImpPlus::Read => "".to_string(), // Handled in identifier
             MiniImpPlus::Var => "let mut ".to_string(),
-            MiniImpPlus::AsNumber => todo!(),
-            MiniImpPlus::AsString => todo!(),
+            MiniImpPlus::AsNumber => "".to_string(), // Hanled in identifier
+            MiniImpPlus::AsString => "".to_string(), // Handled in identifier
             MiniImpPlus::Begin => "{\n".to_string(),
             MiniImpPlus::End => "}\n".to_string(),
             MiniImpPlus::Program => "fn main()".to_string(),

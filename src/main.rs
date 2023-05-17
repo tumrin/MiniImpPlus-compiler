@@ -9,6 +9,10 @@ use std::{borrow::Cow, fs};
 
 mod mini_imp;
 
+enum Languages {
+    Rust(Rust),
+}
+
 fn main() {
     // let test = "program CALCULATOR\n
     // begin\n
@@ -26,7 +30,7 @@ fn main() {
     // end.\n";
     let test = "program CALCULATOR\n
     begin\n
-    write \"please insert an number\";
+    write \"please insert a number\";
     read ANSWER;\n
     write ANSWER;\n
     \n
@@ -38,6 +42,7 @@ fn main() {
     let mut parser = MiniImpParser::new(token_stream);
 
     let mut previous_token: Option<Box<GenericToken<Cow<str>>>> = None;
+    let mut output = String::new();
     while !parser.matched_eof {
         let current = parser.get_current_token().clone();
         let stream = parser.get_input_stream_mut();
@@ -51,6 +56,7 @@ fn main() {
         let next = stream.get(next_index).clone();
 
         let token = handle_token(previous_token.clone(), current.clone(), next, &Rust);
+        output.push_str(&token);
         print!("{token}");
         previous_token = Some(current);
         if stream.la(1) != -1 {
@@ -59,6 +65,8 @@ fn main() {
             parser.matched_eof = true;
         }
     }
+    // TODO: create file type based on language to be translated
+    fs::write("output.rs", output).unwrap();
 }
 
 fn handle_token(
