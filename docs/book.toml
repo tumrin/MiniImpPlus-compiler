@@ -1,0 +1,6 @@
+[book]
+authors = ["Tuomas Rinne"]
+language = "en"
+multilingual = false
+src = "src"
+title = "MiniImp plus documentation"
