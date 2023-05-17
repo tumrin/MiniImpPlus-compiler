@@ -78,7 +78,7 @@ impl From<Box<GenericToken<Cow<'_, str>>>> for MiniImpPlus {
 pub trait TranslateMiniImpPlus {
     fn translate(
         &self,
-        mini_imp: MiniImpPlus,
+        current: MiniImpPlus,
         previous: Option<MiniImpPlus>,
         next: MiniImpPlus,
     ) -> String;
