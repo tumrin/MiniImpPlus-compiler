@@ -3,9 +3,12 @@ use antlr_rust::{
     token::{GenericToken, Token},
     InputStream, Parser,
 };
-use clap::{Parser as ArgParser, ValueEnum};
+use clap::Parser as ArgParser;
 use mini_imp::miniimpparser::MiniImpParser;
-use mini_imp_plus::{languages::rust::Rust, MiniImpPlus, TranslateMiniImpPlus};
+use mini_imp_plus::{
+    languages::{rust::Rust, Languages},
+    MiniImpPlus, TranslateMiniImpPlus,
+};
 use std::{borrow::Cow, format, fs};
 
 mod mini_imp;
@@ -16,10 +19,6 @@ struct Args {
     /// Language to translate to
     #[clap(value_enum)]
     language: Languages,
-}
-#[derive(ValueEnum, Debug, Clone)]
-enum Languages {
-    Rust,
 }
 
 fn main() {
@@ -45,7 +44,7 @@ fn main() {
     \n
     end.\n";
 
-    let args = Args::parse().language;
+    let language = Args::parse().language;
 
     let stream = InputStream::new(test);
     let lexer = mini_imp::miniimplexer::MiniImpLexer::new(stream);
@@ -66,7 +65,7 @@ fn main() {
         };
         let next = stream.get(next_index).clone();
 
-        let token = match args {
+        let token = match language {
             Languages::Rust => handle_token(previous_token.clone(), current.clone(), next, &Rust),
         };
 
@@ -79,7 +78,7 @@ fn main() {
             parser.matched_eof = true;
         }
     }
-    let file_type = match args {
+    let file_type = match language {
         Languages::Rust => "rs",
     };
     fs::write(format!("output.{file_type}"), output).unwrap();
