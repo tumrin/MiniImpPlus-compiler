@@ -1795,8 +1795,10 @@ impl<'input> AsNumberContextExt<'input>{
 
 pub trait AsNumberContextAttrs<'input>: MiniImpParserContext<'input> + BorrowMut<AsNumberContextExt<'input>>{
 
-fn variable(&self) -> Option<Rc<VariableContextAll<'input>>> where Self:Sized{
-	self.child_of_type(0)
+/// Retrieves first TerminalNode corresponding to token Identifier
+/// Returns `None` if there is no child corresponding to token Identifier
+fn Identifier(&self) -> Option<Rc<TerminalNode<'input,MiniImpParserContextType>>> where Self:Sized{
+	self.get_token(Identifier, 0)
 }
 
 }
@@ -1820,9 +1822,8 @@ where
 			//recog.base.enter_outer_alt(_localctx.clone(), 1);
 			recog.base.enter_outer_alt(None, 1);
 			{
-			/*InvokeRule variable*/
 			recog.base.set_state(125);
-			recog.variable()?;
+			recog.base.match_token(Identifier,&mut recog.err_handler)?;
 
 			recog.base.set_state(126);
 			recog.base.match_token(T__22,&mut recog.err_handler)?;
@@ -1887,8 +1888,10 @@ impl<'input> AsStringContextExt<'input>{
 
 pub trait AsStringContextAttrs<'input>: MiniImpParserContext<'input> + BorrowMut<AsStringContextExt<'input>>{
 
-fn variable(&self) -> Option<Rc<VariableContextAll<'input>>> where Self:Sized{
-	self.child_of_type(0)
+/// Retrieves first TerminalNode corresponding to token Identifier
+/// Returns `None` if there is no child corresponding to token Identifier
+fn Identifier(&self) -> Option<Rc<TerminalNode<'input,MiniImpParserContextType>>> where Self:Sized{
+	self.get_token(Identifier, 0)
 }
 
 }
@@ -1912,9 +1915,8 @@ where
 			//recog.base.enter_outer_alt(_localctx.clone(), 1);
 			recog.base.enter_outer_alt(None, 1);
 			{
-			/*InvokeRule variable*/
 			recog.base.set_state(128);
-			recog.variable()?;
+			recog.base.match_token(Identifier,&mut recog.err_handler)?;
 
 			recog.base.set_state(129);
 			recog.base.match_token(T__23,&mut recog.err_handler)?;
@@ -2545,8 +2547,8 @@ const _serializedATN:&'static str =
 	\x02\x77\x78\x07\x18\x02\x02\x78\x7b\x07\x1e\x02\x02\x79\x7a\x07\x14\x02\
 	\x02\x7a\x7c\x05\x04\x03\x02\x7b\x79\x03\x02\x02\x02\x7b\x7c\x03\x02\x02\
 	\x02\x7c\x7d\x03\x02\x02\x02\x7d\x7e\x07\x15\x02\x02\x7e\x19\x03\x02\x02\
-	\x02\x7f\u{80}\x05\x18\x0d\x02\u{80}\u{81}\x07\x19\x02\x02\u{81}\x1b\x03\
-	\x02\x02\x02\u{82}\u{83}\x05\x18\x0d\x02\u{83}\u{84}\x07\x1a\x02\x02\u{84}\
+	\x02\x7f\u{80}\x07\x1e\x02\x02\u{80}\u{81}\x07\x19\x02\x02\u{81}\x1b\x03\
+	\x02\x02\x02\u{82}\u{83}\x07\x1e\x02\x02\u{83}\u{84}\x07\x1a\x02\x02\u{84}\
 	\x1d\x03\x02\x02\x02\u{85}\u{89}\x05\x0a\x06\x02\u{86}\u{88}\x05\x0a\x06\
 	\x02\u{87}\u{86}\x03\x02\x02\x02\u{88}\u{8b}\x03\x02\x02\x02\u{89}\u{87}\
 	\x03\x02\x02\x02\u{89}\u{8a}\x03\x02\x02\x02\u{8a}\x1f\x03\x02\x02\x02\u{8b}\

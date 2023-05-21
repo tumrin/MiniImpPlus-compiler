@@ -21,8 +21,8 @@ read   : 'read' expr ';' ;
 
 decl     : variable ;
 variable : 'var' Identifier ( '=' expr )? ';' ;
-asNumber : variable 'asNumber';
-asString : variable 'asString';
+asNumber : Identifier 'asNumber';
+asString : Identifier 'asString';
 
 stmts : stmt stmt* ;
 decls : decl decl* ;
