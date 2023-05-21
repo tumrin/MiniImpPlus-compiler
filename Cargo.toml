@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 antlr-rust = "0.3.0-beta"
+clap = { version = "4.3.0", features = ["derive"] }

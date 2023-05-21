@@ -3,14 +3,23 @@ use antlr_rust::{
     token::{GenericToken, Token},
     InputStream, Parser,
 };
+use clap::{Parser as ArgParser, ValueEnum};
 use mini_imp::miniimpparser::MiniImpParser;
 use mini_imp_plus::{languages::rust::Rust, MiniImpPlus, TranslateMiniImpPlus};
-use std::{borrow::Cow, fs};
+use std::{borrow::Cow, format, fs};
 
 mod mini_imp;
 
+/// Translates form MiniImp to an another language
+#[derive(ArgParser, Debug)]
+struct Args {
+    /// Language to translate to
+    #[clap(value_enum)]
+    language: Languages,
+}
+#[derive(ValueEnum, Debug, Clone)]
 enum Languages {
-    Rust(Rust),
+    Rust,
 }
 
 fn main() {
@@ -36,6 +45,8 @@ fn main() {
     \n
     end.\n";
 
+    let args = Args::parse().language;
+
     let stream = InputStream::new(test);
     let lexer = mini_imp::miniimplexer::MiniImpLexer::new(stream);
     let token_stream = CommonTokenStream::new(lexer);
@@ -55,7 +66,10 @@ fn main() {
         };
         let next = stream.get(next_index).clone();
 
-        let token = handle_token(previous_token.clone(), current.clone(), next, &Rust);
+        let token = match args {
+            Languages::Rust => handle_token(previous_token.clone(), current.clone(), next, &Rust),
+        };
+
         output.push_str(&token);
         print!("{token}");
         previous_token = Some(current);
@@ -65,8 +79,10 @@ fn main() {
             parser.matched_eof = true;
         }
     }
-    // TODO: create file type based on language to be translated
-    fs::write("output.rs", output).unwrap();
+    let file_type = match args {
+        Languages::Rust => "rs",
+    };
+    fs::write(format!("output.{file_type}"), output).unwrap();
 }
 
 fn handle_token(

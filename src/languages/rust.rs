@@ -2,6 +2,7 @@
 use crate::{MiniImpPlus, TranslateMiniImpPlus};
 use std::format;
 
+#[derive(Debug, Clone)]
 pub struct Rust;
 
 impl TranslateMiniImpPlus for Rust {
