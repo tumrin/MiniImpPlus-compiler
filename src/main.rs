@@ -6,7 +6,7 @@ use antlr_rust::{
 use clap::Parser as ArgParser;
 use mini_imp::miniimpparser::MiniImpParser;
 use mini_imp_plus::{
-    languages::{rust::Rust, Languages},
+    languages::{rust::Rust, ts::Typescript, Languages},
     MiniImpPlus, TranslateMiniImpPlus,
 };
 use std::{borrow::Cow, format, fs};
@@ -64,8 +64,8 @@ fn main() {
             write \"Do you want to play again?\";
             read INPUT;
             if is INPUT \"yes\" then begin set REPLAY = true end. else begin set REPLAY = false end.;
-            end. 
-        end.";
+        end.
+    end.";
 
     let language = Args::parse().language;
 
@@ -90,6 +90,9 @@ fn main() {
 
         let token = match language {
             Languages::Rust => handle_token(previous_token.clone(), current.clone(), next, &Rust),
+            Languages::Typescript => {
+                handle_token(previous_token.clone(), current.clone(), next, &Typescript)
+            }
         };
 
         output.push_str(&token);
@@ -103,6 +106,7 @@ fn main() {
     }
     let file_type = match language {
         Languages::Rust => "rs",
+        Languages::Typescript => "ts",
     };
     fs::write(format!("output.{file_type}"), output).unwrap();
 }

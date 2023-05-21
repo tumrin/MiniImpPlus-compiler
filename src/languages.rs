@@ -6,5 +6,5 @@ pub mod ts;
 #[derive(ValueEnum, Debug, Clone)]
 pub enum Languages {
     Rust,
-    TypeScript,
+    Typescript,
 }
