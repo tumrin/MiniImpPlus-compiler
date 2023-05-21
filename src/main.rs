@@ -36,13 +36,59 @@ fn main() {
     // write ANSWER;\n
     // \n
     // end.\n";
-    let test = "program CALCULATOR\n
-    begin\n
-    write \"please insert a number\";
-    read ANSWER;\n
-    write ANSWER;\n
-    \n
-    end.\n";
+    // let test = "program CALCULATOR\n
+    // begin\n
+    // write \"please insert a number\";
+    // read ANSWER;\n
+    // write ANSWER;\n
+    // \n
+    // end.\n";
+
+    let test: &str = "program DEMOAPP \n
+    begin \n
+        var REPLAY;
+        while is REPLAY \"yes\" begin
+            var PLAYER_ONE; \n
+            var PLAYER_ONE_GESTURE; \n
+            var PLAYER_TWO; \n
+            var PLAYER_TWO_GESTURE; \n
+
+            write \"Insert name of player 1:\"; \n
+            read PLAYER_ONE; \n
+            write \"Insert name of player 2:\"; \n
+            read PLAYER_TWO; \n
+
+            write \"Starting game with players:\"; \n
+            write PLAYER_ONE; \n
+            write PLAYER_TWO; \n
+
+            write \"Player 1, choose a gesture (rock/paper/scissors): \";\n
+            read PLAYER_ONE_GESTURE; \n
+
+            write \"Player 2, choose a gesture (rock/paper/scissors): \"; \n
+            read PLAYER_TWO_GESTURE; \n
+
+            if is PLAYER_TWO_GESTURE PLAYER_ONE_GESTURE then begin write \"Draw\" end.; \n
+            
+            if is PLAYER_TWO_GESTURE \"rock\" and is PLAYER_ONE_GESTURE \"scissors\" then begin write \"Player 2 wins\" end.; \n
+
+            if is PLAYER_TWO_GESTURE \"rock\" and is PLAYER_ONE_GESTURE \"paper\" then begin write \"Player 1 wins\" end.; \n
+
+            if is PLAYER_TWO_GESTURE \"scissors\" and is PLAYER_ONE_GESTURE \"paper\" then begin write \"Player 2 wins\" end.; \n
+
+            if is PLAYER_TWO_GESTURE \"scissors\" and is PLAYER_ONE_GESTURE \"rock\" then begin write \"Player 1 wins\" end.; \n
+
+            if is PLAYER_TWO_GESTURE \"paper\" and is PLAYER_ONE_GESTURE \"scissors\" then begin write \"Player 1 wins\" end.; \n
+
+            if is PLAYER_TWO_GESTURE \"paper\" and is PLAYER_ONE_GESTURE \"rock\" then begin write \"Player 2 wins\" end.; \n
+
+            write \"Do you want to play again?\"
+            read REPLAY;
+
+            end. \n
+        end. \n
+    end. \n
+    ";
 
     let language = Args::parse().language;
 
