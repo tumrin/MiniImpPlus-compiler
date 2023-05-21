@@ -22,73 +22,50 @@ struct Args {
 }
 
 fn main() {
-    // let test = "program CALCULATOR\n
-    // begin\n
-    // var PI = 3;\n
-    // var ANSWER = PI;\n
-    // var X = 9;\n
-    // \n
-    // while not is X PI begin\n
-    // set ANSWER = ANSWER + X;\n
-    // set X = X - 1;\n
-    // end.\n
-    // \n
-    // write ANSWER;\n
-    // \n
-    // end.\n";
-    // let test = "program CALCULATOR\n
-    // begin\n
-    // write \"please insert a number\";
-    // read ANSWER;\n
-    // write ANSWER;\n
-    // \n
-    // end.\n";
+    let test = "program DEMOAPP 
+    begin 
+        var REPLAY = true; 
+        while REPLAY begin
+            var PLAYER_ONE = \"\";
+            var PLAYER_ONE_GESTURE = \"\"; 
+            var PLAYER_TWO = \"\"; 
+            var PLAYER_TWO_GESTURE = \"\";
+            var INPUT = \"\";
 
-    let test: &str = "program DEMOAPP \n
-    begin \n
-        var REPLAY;
-        while is REPLAY \"yes\" begin
-            var PLAYER_ONE; \n
-            var PLAYER_ONE_GESTURE; \n
-            var PLAYER_TWO; \n
-            var PLAYER_TWO_GESTURE; \n
+            write \"Insert name of player 1:\";
+            read PLAYER_ONE; 
+            write \"Insert name of player 2:\";
+            read PLAYER_TWO; 
 
-            write \"Insert name of player 1:\"; \n
-            read PLAYER_ONE; \n
-            write \"Insert name of player 2:\"; \n
-            read PLAYER_TWO; \n
+            write \"Starting game with players:\";
+            write PLAYER_ONE;
+            write PLAYER_TWO;
 
-            write \"Starting game with players:\"; \n
-            write PLAYER_ONE; \n
-            write PLAYER_TWO; \n
+            write \"Player 1, choose a gesture (rock/paper/scissors): \";
+            read PLAYER_ONE_GESTURE; 
 
-            write \"Player 1, choose a gesture (rock/paper/scissors): \";\n
-            read PLAYER_ONE_GESTURE; \n
+            write \"Player 2, choose a gesture (rock/paper/scissors): \"; 
+            read PLAYER_TWO_GESTURE; 
 
-            write \"Player 2, choose a gesture (rock/paper/scissors): \"; \n
-            read PLAYER_TWO_GESTURE; \n
-
-            if is PLAYER_TWO_GESTURE PLAYER_ONE_GESTURE then begin write \"Draw\" end.; \n
+            if is PLAYER_TWO_GESTURE PLAYER_ONE_GESTURE then begin write \"Draw\" end.; 
             
-            if is PLAYER_TWO_GESTURE \"rock\" and is PLAYER_ONE_GESTURE \"scissors\" then begin write \"Player 2 wins\" end.; \n
+            if is PLAYER_TWO_GESTURE \"rock\" and is PLAYER_ONE_GESTURE \"scissors\" then begin write PLAYER_TWO; write \" wins\" end.; 
 
-            if is PLAYER_TWO_GESTURE \"rock\" and is PLAYER_ONE_GESTURE \"paper\" then begin write \"Player 1 wins\" end.; \n
+            if is PLAYER_TWO_GESTURE \"rock\" and is PLAYER_ONE_GESTURE \"paper\" then begin write PLAYER_ONE; write \" wins\" end.; 
 
-            if is PLAYER_TWO_GESTURE \"scissors\" and is PLAYER_ONE_GESTURE \"paper\" then begin write \"Player 2 wins\" end.; \n
+            if is PLAYER_TWO_GESTURE \"scissors\" and is PLAYER_ONE_GESTURE \"paper\" then begin write PLAYER_TWO; write \" wins\" end.; 
 
-            if is PLAYER_TWO_GESTURE \"scissors\" and is PLAYER_ONE_GESTURE \"rock\" then begin write \"Player 1 wins\" end.; \n
+            if is PLAYER_TWO_GESTURE \"scissors\" and is PLAYER_ONE_GESTURE \"rock\" then begin write PLAYER_ONE; write \" wins\" end.; 
 
-            if is PLAYER_TWO_GESTURE \"paper\" and is PLAYER_ONE_GESTURE \"scissors\" then begin write \"Player 1 wins\" end.; \n
+            if is PLAYER_TWO_GESTURE \"paper\" and is PLAYER_ONE_GESTURE \"scissors\" then begin write PLAYER_ONE; write \" wins\" end.; 
 
-            if is PLAYER_TWO_GESTURE \"paper\" and is PLAYER_ONE_GESTURE \"rock\" then begin write \"Player 2 wins\" end.; \n
+            if is PLAYER_TWO_GESTURE \"paper\" and is PLAYER_ONE_GESTURE \"rock\" then begin write PLAYER_TWO; write \" wins\" end.; 
 
-            write \"Do you want to play again?\"
-            read REPLAY;
-
-            end. \n
-        end. \n
-    end. \n
-    ";
+            write \"Do you want to play again?\";
+            read INPUT;
+            if is INPUT \"yes\" then begin set REPLAY = true end. else begin set REPLAY = false end.;
+            end. 
+        end.";
 
     let language = Args::parse().language;
 
