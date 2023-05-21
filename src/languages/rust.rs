@@ -35,10 +35,10 @@ impl TranslateMiniImpPlus for Rust {
             MiniImpPlus::Divide => "/".to_string(),
             MiniImpPlus::OpenParenthesis => "(".to_string(),
             MiniImpPlus::CloseParenthesis => ")".to_string(),
-            MiniImpPlus::If => "if".to_string(),
+            MiniImpPlus::If => "if ".to_string(),
             MiniImpPlus::Then => "".to_string(),
             MiniImpPlus::Else => "else".to_string(),
-            MiniImpPlus::While => "while".to_string(),
+            MiniImpPlus::While => "while ".to_string(),
             MiniImpPlus::Set => "".to_string(),
             MiniImpPlus::Equals => "=".to_string(),
             MiniImpPlus::Semicolon => ";\n".to_string(),
@@ -55,13 +55,13 @@ impl TranslateMiniImpPlus for Rust {
                     format!("(\"{{{}}}\")", value)
                 }
                 Some(MiniImpPlus::Read) => {
-                    format!("let mut {value} = String::new();\nstd::io::stdin().read_line(&mut {value}).unwrap()")
+                    format!("let mut {value} = String::new();\nstd::io::stdin().read_line(&mut {value}).unwrap();\n {value} = {value}.trim().to_string()")
                 }
                 Some(MiniImpPlus::Is) => {
-                    format!("({} == ", value)
+                    format!("{} == ", value)
                 }
                 Some(MiniImpPlus::Program) => "".to_string(),
-                Some(MiniImpPlus::Identifier(_)) => format!("{})", value),
+                Some(MiniImpPlus::Identifier(_)) => format!("{}", value),
                 Some(_) | None => match next {
                     MiniImpPlus::AsNumber => format!("{value}.parse::<i32>().unwrap()"),
                     MiniImpPlus::AsString => format!("{value}.to_string()"),
