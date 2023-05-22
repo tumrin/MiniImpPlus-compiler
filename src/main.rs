@@ -6,7 +6,7 @@ use antlr_rust::{
 use clap::Parser as ArgParser;
 use mini_imp::miniimpparser::MiniImpParser;
 use mini_imp_plus::{
-    languages::{rust::Rust, ts::Typescript, Languages},
+    languages::{js::Javascript, rust::Rust, Languages},
     MiniImpPlus, TranslateMiniImpPlus,
 };
 use std::{borrow::Cow, format, fs};
@@ -41,10 +41,12 @@ fn main() {
             write PLAYER_ONE;
             write PLAYER_TWO;
 
-            write \"Player 1, choose a gesture (rock/paper/scissors): \";
+            write \"Choose a gesture (rock/paper/scissors) for the following player: \";
+            write PLAYER_ONE;
             read PLAYER_ONE_GESTURE; 
 
-            write \"Player 2, choose a gesture (rock/paper/scissors): \"; 
+            write \"Choose a gesture (rock/paper/scissors) for the following player: \";
+            write PLAYER_TWO;
             read PLAYER_TWO_GESTURE; 
 
             if is PLAYER_TWO_GESTURE PLAYER_ONE_GESTURE then begin write \"Draw\" end.; 
@@ -90,8 +92,8 @@ fn main() {
 
         let token = match language {
             Languages::Rust => handle_token(previous_token.clone(), current.clone(), next, &Rust),
-            Languages::Typescript => {
-                handle_token(previous_token.clone(), current.clone(), next, &Typescript)
+            Languages::Javascript => {
+                handle_token(previous_token.clone(), current.clone(), next, &Javascript)
             }
         };
 
@@ -106,7 +108,7 @@ fn main() {
     }
     let file_type = match language {
         Languages::Rust => "rs",
-        Languages::Typescript => "ts",
+        Languages::Javascript => "mjs",
     };
     fs::write(format!("output.{file_type}"), output).unwrap();
 }

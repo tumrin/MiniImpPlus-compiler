@@ -1,8 +1,8 @@
 use crate::{MiniImpPlus, TranslateMiniImpPlus};
 
-pub struct Typescript;
+pub struct Javascript;
 
-impl TranslateMiniImpPlus for Typescript {
+impl TranslateMiniImpPlus for Javascript {
     fn translate(
         &self,
         value: MiniImpPlus,
@@ -48,10 +48,10 @@ impl TranslateMiniImpPlus for Typescript {
             MiniImpPlus::Begin => "{ \n".to_string(),
             MiniImpPlus::End => "\n}".to_string(),
             MiniImpPlus::Program => "
-const readline = require('node:readline');\n
-const { stdin: input, stdout: output } = require('node:process');\n
-const rl = readline.createInterface({ input, output });"
-                .to_string(),
+import * as readline from 'node:readline/promises';\n
+import { stdin as input, stdout as output } from 'node:process';\n
+"
+            .to_string(),
             MiniImpPlus::Identifier(value) => match previous {
                 Some(MiniImpPlus::Write) => {
                     format!("({})", value)
@@ -61,10 +61,9 @@ const rl = readline.createInterface({ input, output });"
                 }
                 Some(MiniImpPlus::Read) => {
                     format!(
-                        "rl.on(\"line\", (answer: string) => {{
-                        {value} = answer;
-                        console.log(\"hello bois\");
-                      }});"
+                        "const rl_{value} = readline.createInterface({{ input, output }});
+                        {value} = await rl_{value}.question('');
+                        rl_{value}.close()"
                     )
                 }
                 Some(MiniImpPlus::Is) => {

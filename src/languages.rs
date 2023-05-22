@@ -1,10 +1,10 @@
 use clap::ValueEnum;
 
+pub mod js;
 pub mod rust;
-pub mod ts;
 
 #[derive(ValueEnum, Debug, Clone)]
 pub enum Languages {
     Rust,
-    Typescript,
+    Javascript,
 }
