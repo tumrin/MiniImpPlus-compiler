@@ -25,6 +25,8 @@ use antlr_rust::int_stream::EOF;
 use antlr_rust::vocabulary::{Vocabulary,VocabularyImpl};
 use antlr_rust::token_factory::{CommonTokenFactory,TokenFactory, TokenAware};
 use super::miniimplistener::*;
+use super::miniimpvisitor::*;
+
 use antlr_rust::lazy_static;
 use antlr_rust::{TidAble,TidExt};
 
@@ -192,10 +194,20 @@ where
 /// Trait for monomorphized trait object that corresponds to the nodes of parse tree generated for MiniImpParser
 pub trait MiniImpParserContext<'input>:
 	for<'x> Listenable<dyn MiniImpListener<'input> + 'x > + 
+	for<'x> Visitable<dyn MiniImpVisitor<'input> + 'x > + 
 	ParserRuleContext<'input, TF=LocalTokenFactory<'input>, Ctx=MiniImpParserContextType>
 {}
 
 antlr_rust::coerce_from!{ 'input : MiniImpParserContext<'input> }
+
+impl<'input, 'x, T> VisitableDyn<T> for dyn MiniImpParserContext<'input> + 'input
+where
+    T: MiniImpVisitor<'input> + 'x,
+{
+    fn accept_dyn(&self, visitor: &mut T) {
+        self.accept(visitor as &mut (dyn MiniImpVisitor<'input> + 'x))
+    }
+}
 
 impl<'input> MiniImpParserContext<'input> for TerminalNode<'input,MiniImpParserContextType> {}
 impl<'input> MiniImpParserContext<'input> for ErrorNode<'input,MiniImpParserContextType> {}
@@ -299,10 +311,17 @@ impl<'input,'a> Listenable<dyn MiniImpListener<'input> + 'a> for TruthContext<'i
 		fn enter(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.enter_every_rule(self);
 			listener.enter_truth(self);
-		}fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
+		}
+		fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.exit_truth(self);
 			listener.exit_every_rule(self);
 		}
+}
+
+impl<'input,'a> Visitable<dyn MiniImpVisitor<'input> + 'a> for TruthContext<'input>{
+	fn accept(&self,visitor: &mut (dyn MiniImpVisitor<'input> + 'a)) {
+		visitor.visit_truth(self);
+	}
 }
 
 impl<'input> CustomRuleContext<'input> for TruthContextExt<'input>{
@@ -516,10 +535,17 @@ impl<'input,'a> Listenable<dyn MiniImpListener<'input> + 'a> for ExprContext<'in
 		fn enter(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.enter_every_rule(self);
 			listener.enter_expr(self);
-		}fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
+		}
+		fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.exit_expr(self);
 			listener.exit_every_rule(self);
 		}
+}
+
+impl<'input,'a> Visitable<dyn MiniImpVisitor<'input> + 'a> for ExprContext<'input>{
+	fn accept(&self,visitor: &mut (dyn MiniImpVisitor<'input> + 'a)) {
+		visitor.visit_expr(self);
+	}
 }
 
 impl<'input> CustomRuleContext<'input> for ExprContextExt<'input>{
@@ -639,10 +665,17 @@ impl<'input,'a> Listenable<dyn MiniImpListener<'input> + 'a> for TermContext<'in
 		fn enter(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.enter_every_rule(self);
 			listener.enter_term(self);
-		}fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
+		}
+		fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.exit_term(self);
 			listener.exit_every_rule(self);
 		}
+}
+
+impl<'input,'a> Visitable<dyn MiniImpVisitor<'input> + 'a> for TermContext<'input>{
+	fn accept(&self,visitor: &mut (dyn MiniImpVisitor<'input> + 'a)) {
+		visitor.visit_term(self);
+	}
 }
 
 impl<'input> CustomRuleContext<'input> for TermContextExt<'input>{
@@ -762,10 +795,17 @@ impl<'input,'a> Listenable<dyn MiniImpListener<'input> + 'a> for FactorContext<'
 		fn enter(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.enter_every_rule(self);
 			listener.enter_factor(self);
-		}fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
+		}
+		fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.exit_factor(self);
 			listener.exit_every_rule(self);
 		}
+}
+
+impl<'input,'a> Visitable<dyn MiniImpVisitor<'input> + 'a> for FactorContext<'input>{
+	fn accept(&self,visitor: &mut (dyn MiniImpVisitor<'input> + 'a)) {
+		visitor.visit_factor(self);
+	}
 }
 
 impl<'input> CustomRuleContext<'input> for FactorContextExt<'input>{
@@ -804,6 +844,11 @@ fn Identifier(&self) -> Option<Rc<TerminalNode<'input,MiniImpParserContextType>>
 fn Number(&self) -> Option<Rc<TerminalNode<'input,MiniImpParserContextType>>> where Self:Sized{
 	self.get_token(Number, 0)
 }
+/// Retrieves first TerminalNode corresponding to token STRING
+/// Returns `None` if there is no child corresponding to token STRING
+fn STRING(&self) -> Option<Rc<TerminalNode<'input,MiniImpParserContextType>>> where Self:Sized{
+	self.get_token(STRING, 0)
+}
 
 }
 
@@ -823,7 +868,7 @@ where
         let mut _localctx: Rc<FactorContextAll> = _localctx;
 		let result: Result<(), ANTLRError> = (|| {
 
-			recog.base.set_state(82);
+			recog.base.set_state(83);
 			recog.err_handler.sync(&mut recog.base)?;
 			match recog.base.input.la(1) {
 			 T__10 
@@ -880,6 +925,17 @@ where
 					}
 				}
 
+			 STRING 
+				=> {
+					//recog.base.enter_outer_alt(_localctx.clone(), 5);
+					recog.base.enter_outer_alt(None, 5);
+					{
+					recog.base.set_state(82);
+					recog.base.match_token(STRING,&mut recog.err_handler)?;
+
+					}
+				}
+
 				_ => Err(ANTLRError::NoAltError(NoViableAltError::new(&mut recog.base)))?
 			}
 			Ok(())
@@ -915,10 +971,17 @@ impl<'input,'a> Listenable<dyn MiniImpListener<'input> + 'a> for StmtContext<'in
 		fn enter(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.enter_every_rule(self);
 			listener.enter_stmt(self);
-		}fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
+		}
+		fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.exit_stmt(self);
 			listener.exit_every_rule(self);
 		}
+}
+
+impl<'input,'a> Visitable<dyn MiniImpVisitor<'input> + 'a> for StmtContext<'input>{
+	fn accept(&self,visitor: &mut (dyn MiniImpVisitor<'input> + 'a)) {
+		visitor.visit_stmt(self);
+	}
 }
 
 impl<'input> CustomRuleContext<'input> for StmtContextExt<'input>{
@@ -953,6 +1016,9 @@ fn set(&self) -> Option<Rc<SetContextAll<'input>>> where Self:Sized{
 fn write(&self) -> Option<Rc<WriteContextAll<'input>>> where Self:Sized{
 	self.child_of_type(0)
 }
+fn read(&self) -> Option<Rc<ReadContextAll<'input>>> where Self:Sized{
+	self.child_of_type(0)
+}
 
 }
 
@@ -972,7 +1038,7 @@ where
         let mut _localctx: Rc<StmtContextAll> = _localctx;
 		let result: Result<(), ANTLRError> = (|| {
 
-			recog.base.set_state(88);
+			recog.base.set_state(90);
 			recog.err_handler.sync(&mut recog.base)?;
 			match recog.base.input.la(1) {
 			 T__12 
@@ -981,7 +1047,7 @@ where
 					recog.base.enter_outer_alt(None, 1);
 					{
 					/*InvokeRule select*/
-					recog.base.set_state(84);
+					recog.base.set_state(85);
 					recog.select()?;
 
 					}
@@ -993,7 +1059,7 @@ where
 					recog.base.enter_outer_alt(None, 2);
 					{
 					/*InvokeRule iterat*/
-					recog.base.set_state(85);
+					recog.base.set_state(86);
 					recog.iterat()?;
 
 					}
@@ -1005,7 +1071,7 @@ where
 					recog.base.enter_outer_alt(None, 3);
 					{
 					/*InvokeRule set*/
-					recog.base.set_state(86);
+					recog.base.set_state(87);
 					recog.set()?;
 
 					}
@@ -1017,8 +1083,20 @@ where
 					recog.base.enter_outer_alt(None, 4);
 					{
 					/*InvokeRule write*/
-					recog.base.set_state(87);
+					recog.base.set_state(88);
 					recog.write()?;
+
+					}
+				}
+
+			 T__20 
+				=> {
+					//recog.base.enter_outer_alt(_localctx.clone(), 5);
+					recog.base.enter_outer_alt(None, 5);
+					{
+					/*InvokeRule read*/
+					recog.base.set_state(89);
+					recog.read()?;
 
 					}
 				}
@@ -1058,10 +1136,17 @@ impl<'input,'a> Listenable<dyn MiniImpListener<'input> + 'a> for SelectContext<'
 		fn enter(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.enter_every_rule(self);
 			listener.enter_select(self);
-		}fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
+		}
+		fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.exit_select(self);
 			listener.exit_every_rule(self);
 		}
+}
+
+impl<'input,'a> Visitable<dyn MiniImpVisitor<'input> + 'a> for SelectContext<'input>{
+	fn accept(&self,visitor: &mut (dyn MiniImpVisitor<'input> + 'a)) {
+		visitor.visit_select(self);
+	}
 }
 
 impl<'input> CustomRuleContext<'input> for SelectContextExt<'input>{
@@ -1115,25 +1200,25 @@ where
 			//recog.base.enter_outer_alt(_localctx.clone(), 1);
 			recog.base.enter_outer_alt(None, 1);
 			{
-			recog.base.set_state(90);
+			recog.base.set_state(92);
 			recog.base.match_token(T__12,&mut recog.err_handler)?;
 
 			/*InvokeRule expr*/
-			recog.base.set_state(91);
+			recog.base.set_state(93);
 			recog.expr()?;
 
-			recog.base.set_state(92);
+			recog.base.set_state(94);
 			recog.base.match_token(T__13,&mut recog.err_handler)?;
 
 			/*InvokeRule scope*/
-			recog.base.set_state(93);
+			recog.base.set_state(95);
 			recog.scope()?;
 
-			recog.base.set_state(94);
+			recog.base.set_state(96);
 			recog.base.match_token(T__14,&mut recog.err_handler)?;
 
 			/*InvokeRule scope*/
-			recog.base.set_state(95);
+			recog.base.set_state(97);
 			recog.scope()?;
 
 			}
@@ -1170,10 +1255,17 @@ impl<'input,'a> Listenable<dyn MiniImpListener<'input> + 'a> for IteratContext<'
 		fn enter(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.enter_every_rule(self);
 			listener.enter_iterat(self);
-		}fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
+		}
+		fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.exit_iterat(self);
 			listener.exit_every_rule(self);
 		}
+}
+
+impl<'input,'a> Visitable<dyn MiniImpVisitor<'input> + 'a> for IteratContext<'input>{
+	fn accept(&self,visitor: &mut (dyn MiniImpVisitor<'input> + 'a)) {
+		visitor.visit_iterat(self);
+	}
 }
 
 impl<'input> CustomRuleContext<'input> for IteratContextExt<'input>{
@@ -1224,15 +1316,15 @@ where
 			//recog.base.enter_outer_alt(_localctx.clone(), 1);
 			recog.base.enter_outer_alt(None, 1);
 			{
-			recog.base.set_state(97);
+			recog.base.set_state(99);
 			recog.base.match_token(T__15,&mut recog.err_handler)?;
 
 			/*InvokeRule expr*/
-			recog.base.set_state(98);
+			recog.base.set_state(100);
 			recog.expr()?;
 
 			/*InvokeRule scope*/
-			recog.base.set_state(99);
+			recog.base.set_state(101);
 			recog.scope()?;
 
 			}
@@ -1269,10 +1361,17 @@ impl<'input,'a> Listenable<dyn MiniImpListener<'input> + 'a> for SetContext<'inp
 		fn enter(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.enter_every_rule(self);
 			listener.enter_set(self);
-		}fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
+		}
+		fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.exit_set(self);
 			listener.exit_every_rule(self);
 		}
+}
+
+impl<'input,'a> Visitable<dyn MiniImpVisitor<'input> + 'a> for SetContext<'input>{
+	fn accept(&self,visitor: &mut (dyn MiniImpVisitor<'input> + 'a)) {
+		visitor.visit_set(self);
+	}
 }
 
 impl<'input> CustomRuleContext<'input> for SetContextExt<'input>{
@@ -1325,20 +1424,20 @@ where
 			//recog.base.enter_outer_alt(_localctx.clone(), 1);
 			recog.base.enter_outer_alt(None, 1);
 			{
-			recog.base.set_state(101);
+			recog.base.set_state(103);
 			recog.base.match_token(T__16,&mut recog.err_handler)?;
 
-			recog.base.set_state(102);
+			recog.base.set_state(104);
 			recog.base.match_token(Identifier,&mut recog.err_handler)?;
 
-			recog.base.set_state(103);
+			recog.base.set_state(105);
 			recog.base.match_token(T__17,&mut recog.err_handler)?;
 
 			/*InvokeRule expr*/
-			recog.base.set_state(104);
+			recog.base.set_state(106);
 			recog.expr()?;
 
-			recog.base.set_state(105);
+			recog.base.set_state(107);
 			recog.base.match_token(T__18,&mut recog.err_handler)?;
 
 			}
@@ -1375,10 +1474,17 @@ impl<'input,'a> Listenable<dyn MiniImpListener<'input> + 'a> for WriteContext<'i
 		fn enter(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.enter_every_rule(self);
 			listener.enter_write(self);
-		}fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
+		}
+		fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.exit_write(self);
 			listener.exit_every_rule(self);
 		}
+}
+
+impl<'input,'a> Visitable<dyn MiniImpVisitor<'input> + 'a> for WriteContext<'input>{
+	fn accept(&self,visitor: &mut (dyn MiniImpVisitor<'input> + 'a)) {
+		visitor.visit_write(self);
+	}
 }
 
 impl<'input> CustomRuleContext<'input> for WriteContextExt<'input>{
@@ -1426,14 +1532,14 @@ where
 			//recog.base.enter_outer_alt(_localctx.clone(), 1);
 			recog.base.enter_outer_alt(None, 1);
 			{
-			recog.base.set_state(107);
+			recog.base.set_state(109);
 			recog.base.match_token(T__19,&mut recog.err_handler)?;
 
 			/*InvokeRule expr*/
-			recog.base.set_state(108);
+			recog.base.set_state(110);
 			recog.expr()?;
 
-			recog.base.set_state(109);
+			recog.base.set_state(111);
 			recog.base.match_token(T__18,&mut recog.err_handler)?;
 
 			}
@@ -1470,10 +1576,17 @@ impl<'input,'a> Listenable<dyn MiniImpListener<'input> + 'a> for ReadContext<'in
 		fn enter(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.enter_every_rule(self);
 			listener.enter_read(self);
-		}fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
+		}
+		fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.exit_read(self);
 			listener.exit_every_rule(self);
 		}
+}
+
+impl<'input,'a> Visitable<dyn MiniImpVisitor<'input> + 'a> for ReadContext<'input>{
+	fn accept(&self,visitor: &mut (dyn MiniImpVisitor<'input> + 'a)) {
+		visitor.visit_read(self);
+	}
 }
 
 impl<'input> CustomRuleContext<'input> for ReadContextExt<'input>{
@@ -1521,14 +1634,14 @@ where
 			//recog.base.enter_outer_alt(_localctx.clone(), 1);
 			recog.base.enter_outer_alt(None, 1);
 			{
-			recog.base.set_state(111);
+			recog.base.set_state(113);
 			recog.base.match_token(T__20,&mut recog.err_handler)?;
 
 			/*InvokeRule expr*/
-			recog.base.set_state(112);
+			recog.base.set_state(114);
 			recog.expr()?;
 
-			recog.base.set_state(113);
+			recog.base.set_state(115);
 			recog.base.match_token(T__18,&mut recog.err_handler)?;
 
 			}
@@ -1565,10 +1678,17 @@ impl<'input,'a> Listenable<dyn MiniImpListener<'input> + 'a> for DeclContext<'in
 		fn enter(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.enter_every_rule(self);
 			listener.enter_decl(self);
-		}fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
+		}
+		fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.exit_decl(self);
 			listener.exit_every_rule(self);
 		}
+}
+
+impl<'input,'a> Visitable<dyn MiniImpVisitor<'input> + 'a> for DeclContext<'input>{
+	fn accept(&self,visitor: &mut (dyn MiniImpVisitor<'input> + 'a)) {
+		visitor.visit_decl(self);
+	}
 }
 
 impl<'input> CustomRuleContext<'input> for DeclContextExt<'input>{
@@ -1617,7 +1737,7 @@ where
 			recog.base.enter_outer_alt(None, 1);
 			{
 			/*InvokeRule variable*/
-			recog.base.set_state(115);
+			recog.base.set_state(117);
 			recog.variable()?;
 
 			}
@@ -1654,10 +1774,17 @@ impl<'input,'a> Listenable<dyn MiniImpListener<'input> + 'a> for VariableContext
 		fn enter(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.enter_every_rule(self);
 			listener.enter_variable(self);
-		}fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
+		}
+		fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.exit_variable(self);
 			listener.exit_every_rule(self);
 		}
+}
+
+impl<'input,'a> Visitable<dyn MiniImpVisitor<'input> + 'a> for VariableContext<'input>{
+	fn accept(&self,visitor: &mut (dyn MiniImpVisitor<'input> + 'a)) {
+		visitor.visit_variable(self);
+	}
 }
 
 impl<'input> CustomRuleContext<'input> for VariableContextExt<'input>{
@@ -1711,28 +1838,28 @@ where
 			//recog.base.enter_outer_alt(_localctx.clone(), 1);
 			recog.base.enter_outer_alt(None, 1);
 			{
-			recog.base.set_state(117);
+			recog.base.set_state(119);
 			recog.base.match_token(T__21,&mut recog.err_handler)?;
 
-			recog.base.set_state(118);
+			recog.base.set_state(120);
 			recog.base.match_token(Identifier,&mut recog.err_handler)?;
 
-			recog.base.set_state(121);
+			recog.base.set_state(123);
 			recog.err_handler.sync(&mut recog.base)?;
 			_la = recog.base.input.la(1);
 			if _la==T__17 {
 				{
-				recog.base.set_state(119);
+				recog.base.set_state(121);
 				recog.base.match_token(T__17,&mut recog.err_handler)?;
 
 				/*InvokeRule expr*/
-				recog.base.set_state(120);
+				recog.base.set_state(122);
 				recog.expr()?;
 
 				}
 			}
 
-			recog.base.set_state(123);
+			recog.base.set_state(125);
 			recog.base.match_token(T__18,&mut recog.err_handler)?;
 
 			}
@@ -1769,10 +1896,17 @@ impl<'input,'a> Listenable<dyn MiniImpListener<'input> + 'a> for AsNumberContext
 		fn enter(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.enter_every_rule(self);
 			listener.enter_asNumber(self);
-		}fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
+		}
+		fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.exit_asNumber(self);
 			listener.exit_every_rule(self);
 		}
+}
+
+impl<'input,'a> Visitable<dyn MiniImpVisitor<'input> + 'a> for AsNumberContext<'input>{
+	fn accept(&self,visitor: &mut (dyn MiniImpVisitor<'input> + 'a)) {
+		visitor.visit_asNumber(self);
+	}
 }
 
 impl<'input> CustomRuleContext<'input> for AsNumberContextExt<'input>{
@@ -1822,10 +1956,10 @@ where
 			//recog.base.enter_outer_alt(_localctx.clone(), 1);
 			recog.base.enter_outer_alt(None, 1);
 			{
-			recog.base.set_state(125);
+			recog.base.set_state(127);
 			recog.base.match_token(Identifier,&mut recog.err_handler)?;
 
-			recog.base.set_state(126);
+			recog.base.set_state(128);
 			recog.base.match_token(T__22,&mut recog.err_handler)?;
 
 			}
@@ -1862,10 +1996,17 @@ impl<'input,'a> Listenable<dyn MiniImpListener<'input> + 'a> for AsStringContext
 		fn enter(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.enter_every_rule(self);
 			listener.enter_asString(self);
-		}fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
+		}
+		fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.exit_asString(self);
 			listener.exit_every_rule(self);
 		}
+}
+
+impl<'input,'a> Visitable<dyn MiniImpVisitor<'input> + 'a> for AsStringContext<'input>{
+	fn accept(&self,visitor: &mut (dyn MiniImpVisitor<'input> + 'a)) {
+		visitor.visit_asString(self);
+	}
 }
 
 impl<'input> CustomRuleContext<'input> for AsStringContextExt<'input>{
@@ -1915,10 +2056,10 @@ where
 			//recog.base.enter_outer_alt(_localctx.clone(), 1);
 			recog.base.enter_outer_alt(None, 1);
 			{
-			recog.base.set_state(128);
+			recog.base.set_state(130);
 			recog.base.match_token(Identifier,&mut recog.err_handler)?;
 
-			recog.base.set_state(129);
+			recog.base.set_state(131);
 			recog.base.match_token(T__23,&mut recog.err_handler)?;
 
 			}
@@ -1955,10 +2096,17 @@ impl<'input,'a> Listenable<dyn MiniImpListener<'input> + 'a> for StmtsContext<'i
 		fn enter(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.enter_every_rule(self);
 			listener.enter_stmts(self);
-		}fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
+		}
+		fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.exit_stmts(self);
 			listener.exit_every_rule(self);
 		}
+}
+
+impl<'input,'a> Visitable<dyn MiniImpVisitor<'input> + 'a> for StmtsContext<'input>{
+	fn accept(&self,visitor: &mut (dyn MiniImpVisitor<'input> + 'a)) {
+		visitor.visit_stmts(self);
+	}
 }
 
 impl<'input> CustomRuleContext<'input> for StmtsContextExt<'input>{
@@ -2011,22 +2159,22 @@ where
 			recog.base.enter_outer_alt(None, 1);
 			{
 			/*InvokeRule stmt*/
-			recog.base.set_state(131);
+			recog.base.set_state(133);
 			recog.stmt()?;
 
-			recog.base.set_state(135);
+			recog.base.set_state(137);
 			recog.err_handler.sync(&mut recog.base)?;
 			_la = recog.base.input.la(1);
-			while (((_la) & !0x3f) == 0 && ((1usize << _la) & ((1usize << T__12) | (1usize << T__15) | (1usize << T__16) | (1usize << T__19))) != 0) {
+			while (((_la) & !0x3f) == 0 && ((1usize << _la) & ((1usize << T__12) | (1usize << T__15) | (1usize << T__16) | (1usize << T__19) | (1usize << T__20))) != 0) {
 				{
 				{
 				/*InvokeRule stmt*/
-				recog.base.set_state(132);
+				recog.base.set_state(134);
 				recog.stmt()?;
 
 				}
 				}
-				recog.base.set_state(137);
+				recog.base.set_state(139);
 				recog.err_handler.sync(&mut recog.base)?;
 				_la = recog.base.input.la(1);
 			}
@@ -2064,10 +2212,17 @@ impl<'input,'a> Listenable<dyn MiniImpListener<'input> + 'a> for DeclsContext<'i
 		fn enter(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.enter_every_rule(self);
 			listener.enter_decls(self);
-		}fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
+		}
+		fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.exit_decls(self);
 			listener.exit_every_rule(self);
 		}
+}
+
+impl<'input,'a> Visitable<dyn MiniImpVisitor<'input> + 'a> for DeclsContext<'input>{
+	fn accept(&self,visitor: &mut (dyn MiniImpVisitor<'input> + 'a)) {
+		visitor.visit_decls(self);
+	}
 }
 
 impl<'input> CustomRuleContext<'input> for DeclsContextExt<'input>{
@@ -2120,22 +2275,22 @@ where
 			recog.base.enter_outer_alt(None, 1);
 			{
 			/*InvokeRule decl*/
-			recog.base.set_state(138);
+			recog.base.set_state(140);
 			recog.decl()?;
 
-			recog.base.set_state(142);
+			recog.base.set_state(144);
 			recog.err_handler.sync(&mut recog.base)?;
 			_la = recog.base.input.la(1);
 			while _la==T__21 {
 				{
 				{
 				/*InvokeRule decl*/
-				recog.base.set_state(139);
+				recog.base.set_state(141);
 				recog.decl()?;
 
 				}
 				}
-				recog.base.set_state(144);
+				recog.base.set_state(146);
 				recog.err_handler.sync(&mut recog.base)?;
 				_la = recog.base.input.la(1);
 			}
@@ -2173,10 +2328,17 @@ impl<'input,'a> Listenable<dyn MiniImpListener<'input> + 'a> for ScopeContext<'i
 		fn enter(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.enter_every_rule(self);
 			listener.enter_scope(self);
-		}fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
+		}
+		fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.exit_scope(self);
 			listener.exit_every_rule(self);
 		}
+}
+
+impl<'input,'a> Visitable<dyn MiniImpVisitor<'input> + 'a> for ScopeContext<'input>{
+	fn accept(&self,visitor: &mut (dyn MiniImpVisitor<'input> + 'a)) {
+		visitor.visit_scope(self);
+	}
 }
 
 impl<'input> CustomRuleContext<'input> for ScopeContextExt<'input>{
@@ -2228,34 +2390,34 @@ where
 			//recog.base.enter_outer_alt(_localctx.clone(), 1);
 			recog.base.enter_outer_alt(None, 1);
 			{
-			recog.base.set_state(145);
+			recog.base.set_state(147);
 			recog.base.match_token(T__24,&mut recog.err_handler)?;
 
-			recog.base.set_state(147);
+			recog.base.set_state(149);
 			recog.err_handler.sync(&mut recog.base)?;
 			_la = recog.base.input.la(1);
 			if _la==T__21 {
 				{
 				/*InvokeRule decls*/
-				recog.base.set_state(146);
+				recog.base.set_state(148);
 				recog.decls()?;
 
 				}
 			}
 
-			recog.base.set_state(150);
+			recog.base.set_state(152);
 			recog.err_handler.sync(&mut recog.base)?;
 			_la = recog.base.input.la(1);
-			if (((_la) & !0x3f) == 0 && ((1usize << _la) & ((1usize << T__12) | (1usize << T__15) | (1usize << T__16) | (1usize << T__19))) != 0) {
+			if (((_la) & !0x3f) == 0 && ((1usize << _la) & ((1usize << T__12) | (1usize << T__15) | (1usize << T__16) | (1usize << T__19) | (1usize << T__20))) != 0) {
 				{
 				/*InvokeRule stmts*/
-				recog.base.set_state(149);
+				recog.base.set_state(151);
 				recog.stmts()?;
 
 				}
 			}
 
-			recog.base.set_state(152);
+			recog.base.set_state(154);
 			recog.base.match_token(T__25,&mut recog.err_handler)?;
 
 			}
@@ -2292,10 +2454,17 @@ impl<'input,'a> Listenable<dyn MiniImpListener<'input> + 'a> for InitContext<'in
 		fn enter(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.enter_every_rule(self);
 			listener.enter_init(self);
-		}fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
+		}
+		fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.exit_init(self);
 			listener.exit_every_rule(self);
 		}
+}
+
+impl<'input,'a> Visitable<dyn MiniImpVisitor<'input> + 'a> for InitContext<'input>{
+	fn accept(&self,visitor: &mut (dyn MiniImpVisitor<'input> + 'a)) {
+		visitor.visit_init(self);
+	}
 }
 
 impl<'input> CustomRuleContext<'input> for InitContextExt<'input>{
@@ -2345,10 +2514,10 @@ where
 			//recog.base.enter_outer_alt(_localctx.clone(), 1);
 			recog.base.enter_outer_alt(None, 1);
 			{
-			recog.base.set_state(154);
+			recog.base.set_state(156);
 			recog.base.match_token(T__26,&mut recog.err_handler)?;
 
-			recog.base.set_state(155);
+			recog.base.set_state(157);
 			recog.base.match_token(Identifier,&mut recog.err_handler)?;
 
 			}
@@ -2385,10 +2554,17 @@ impl<'input,'a> Listenable<dyn MiniImpListener<'input> + 'a> for ProgContext<'in
 		fn enter(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.enter_every_rule(self);
 			listener.enter_prog(self);
-		}fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
+		}
+		fn exit(&self,listener: &mut (dyn MiniImpListener<'input> + 'a)) {
 			listener.exit_prog(self);
 			listener.exit_every_rule(self);
 		}
+}
+
+impl<'input,'a> Visitable<dyn MiniImpVisitor<'input> + 'a> for ProgContext<'input>{
+	fn accept(&self,visitor: &mut (dyn MiniImpVisitor<'input> + 'a)) {
+		visitor.visit_prog(self);
+	}
 }
 
 impl<'input> CustomRuleContext<'input> for ProgContextExt<'input>{
@@ -2440,11 +2616,11 @@ where
 			recog.base.enter_outer_alt(None, 1);
 			{
 			/*InvokeRule init*/
-			recog.base.set_state(157);
+			recog.base.set_state(159);
 			recog.init()?;
 
 			/*InvokeRule scope*/
-			recog.base.set_state(158);
+			recog.base.set_state(160);
 			recog.scope()?;
 
 			}
@@ -2486,7 +2662,7 @@ lazy_static! {
 
 const _serializedATN:&'static str =
 	"\x03\u{608b}\u{a72a}\u{8133}\u{b9ed}\u{417c}\u{3be7}\u{7786}\u{5964}\x03\
-	\x21\u{a3}\x04\x02\x09\x02\x04\x03\x09\x03\x04\x04\x09\x04\x04\x05\x09\x05\
+	\x21\u{a5}\x04\x02\x09\x02\x04\x03\x09\x03\x04\x04\x09\x04\x04\x05\x09\x05\
 	\x04\x06\x09\x06\x04\x07\x09\x07\x04\x08\x09\x08\x04\x09\x09\x09\x04\x0a\
 	\x09\x0a\x04\x0b\x09\x0b\x04\x0c\x09\x0c\x04\x0d\x09\x0d\x04\x0e\x09\x0e\
 	\x04\x0f\x09\x0f\x04\x10\x09\x10\x04\x11\x09\x11\x04\x12\x09\x12\x04\x13\
@@ -2495,72 +2671,74 @@ const _serializedATN:&'static str =
 	\x02\x03\x02\x07\x02\x39\x0a\x02\x0c\x02\x0e\x02\x3c\x0b\x02\x03\x03\x03\
 	\x03\x03\x03\x07\x03\x41\x0a\x03\x0c\x03\x0e\x03\x44\x0b\x03\x03\x04\x03\
 	\x04\x03\x04\x07\x04\x49\x0a\x04\x0c\x04\x0e\x04\x4c\x0b\x04\x03\x05\x03\
-	\x05\x03\x05\x03\x05\x03\x05\x03\x05\x03\x05\x05\x05\x55\x0a\x05\x03\x06\
-	\x03\x06\x03\x06\x03\x06\x05\x06\x5b\x0a\x06\x03\x07\x03\x07\x03\x07\x03\
-	\x07\x03\x07\x03\x07\x03\x07\x03\x08\x03\x08\x03\x08\x03\x08\x03\x09\x03\
-	\x09\x03\x09\x03\x09\x03\x09\x03\x09\x03\x0a\x03\x0a\x03\x0a\x03\x0a\x03\
-	\x0b\x03\x0b\x03\x0b\x03\x0b\x03\x0c\x03\x0c\x03\x0d\x03\x0d\x03\x0d\x03\
-	\x0d\x05\x0d\x7c\x0a\x0d\x03\x0d\x03\x0d\x03\x0e\x03\x0e\x03\x0e\x03\x0f\
-	\x03\x0f\x03\x0f\x03\x10\x03\x10\x07\x10\u{88}\x0a\x10\x0c\x10\x0e\x10\u{8b}\
-	\x0b\x10\x03\x11\x03\x11\x07\x11\u{8f}\x0a\x11\x0c\x11\x0e\x11\u{92}\x0b\
-	\x11\x03\x12\x03\x12\x05\x12\u{96}\x0a\x12\x03\x12\x05\x12\u{99}\x0a\x12\
-	\x03\x12\x03\x12\x03\x13\x03\x13\x03\x13\x03\x14\x03\x14\x03\x14\x03\x14\
-	\x02\x03\x02\x15\x02\x04\x06\x08\x0a\x0c\x0e\x10\x12\x14\x16\x18\x1a\x1c\
-	\x1e\x20\x22\x24\x26\x02\x04\x03\x02\x09\x0a\x03\x02\x0b\x0c\x02\u{a1}\x02\
-	\x30\x03\x02\x02\x02\x04\x3d\x03\x02\x02\x02\x06\x45\x03\x02\x02\x02\x08\
-	\x54\x03\x02\x02\x02\x0a\x5a\x03\x02\x02\x02\x0c\x5c\x03\x02\x02\x02\x0e\
-	\x63\x03\x02\x02\x02\x10\x67\x03\x02\x02\x02\x12\x6d\x03\x02\x02\x02\x14\
-	\x71\x03\x02\x02\x02\x16\x75\x03\x02\x02\x02\x18\x77\x03\x02\x02\x02\x1a\
-	\x7f\x03\x02\x02\x02\x1c\u{82}\x03\x02\x02\x02\x1e\u{85}\x03\x02\x02\x02\
-	\x20\u{8c}\x03\x02\x02\x02\x22\u{93}\x03\x02\x02\x02\x24\u{9c}\x03\x02\x02\
-	\x02\x26\u{9f}\x03\x02\x02\x02\x28\x29\x08\x02\x01\x02\x29\x31\x07\x03\x02\
-	\x02\x2a\x31\x07\x04\x02\x02\x2b\x2c\x07\x05\x02\x02\x2c\x31\x05\x02\x02\
-	\x06\x2d\x2e\x07\x06\x02\x02\x2e\x2f\x07\x1e\x02\x02\x2f\x31\x05\x04\x03\
-	\x02\x30\x28\x03\x02\x02\x02\x30\x2a\x03\x02\x02\x02\x30\x2b\x03\x02\x02\
-	\x02\x30\x2d\x03\x02\x02\x02\x31\x3a\x03\x02\x02\x02\x32\x33\x0c\x04\x02\
-	\x02\x33\x34\x07\x07\x02\x02\x34\x39\x05\x02\x02\x05\x35\x36\x0c\x03\x02\
-	\x02\x36\x37\x07\x08\x02\x02\x37\x39\x05\x02\x02\x04\x38\x32\x03\x02\x02\
-	\x02\x38\x35\x03\x02\x02\x02\x39\x3c\x03\x02\x02\x02\x3a\x38\x03\x02\x02\
-	\x02\x3a\x3b\x03\x02\x02\x02\x3b\x03\x03\x02\x02\x02\x3c\x3a\x03\x02\x02\
-	\x02\x3d\x42\x05\x06\x04\x02\x3e\x3f\x09\x02\x02\x02\x3f\x41\x05\x06\x04\
-	\x02\x40\x3e\x03\x02\x02\x02\x41\x44\x03\x02\x02\x02\x42\x40\x03\x02\x02\
-	\x02\x42\x43\x03\x02\x02\x02\x43\x05\x03\x02\x02\x02\x44\x42\x03\x02\x02\
-	\x02\x45\x4a\x05\x08\x05\x02\x46\x47\x09\x03\x02\x02\x47\x49\x05\x08\x05\
-	\x02\x48\x46\x03\x02\x02\x02\x49\x4c\x03\x02\x02\x02\x4a\x48\x03\x02\x02\
-	\x02\x4a\x4b\x03\x02\x02\x02\x4b\x07\x03\x02\x02\x02\x4c\x4a\x03\x02\x02\
-	\x02\x4d\x4e\x07\x0d\x02\x02\x4e\x4f\x05\x04\x03\x02\x4f\x50\x07\x0e\x02\
-	\x02\x50\x55\x03\x02\x02\x02\x51\x55\x05\x02\x02\x02\x52\x55\x07\x1e\x02\
-	\x02\x53\x55\x07\x1f\x02\x02\x54\x4d\x03\x02\x02\x02\x54\x51\x03\x02\x02\
-	\x02\x54\x52\x03\x02\x02\x02\x54\x53\x03\x02\x02\x02\x55\x09\x03\x02\x02\
-	\x02\x56\x5b\x05\x0c\x07\x02\x57\x5b\x05\x0e\x08\x02\x58\x5b\x05\x10\x09\
-	\x02\x59\x5b\x05\x12\x0a\x02\x5a\x56\x03\x02\x02\x02\x5a\x57\x03\x02\x02\
-	\x02\x5a\x58\x03\x02\x02\x02\x5a\x59\x03\x02\x02\x02\x5b\x0b\x03\x02\x02\
-	\x02\x5c\x5d\x07\x0f\x02\x02\x5d\x5e\x05\x04\x03\x02\x5e\x5f\x07\x10\x02\
-	\x02\x5f\x60\x05\x22\x12\x02\x60\x61\x07\x11\x02\x02\x61\x62\x05\x22\x12\
-	\x02\x62\x0d\x03\x02\x02\x02\x63\x64\x07\x12\x02\x02\x64\x65\x05\x04\x03\
-	\x02\x65\x66\x05\x22\x12\x02\x66\x0f\x03\x02\x02\x02\x67\x68\x07\x13\x02\
-	\x02\x68\x69\x07\x1e\x02\x02\x69\x6a\x07\x14\x02\x02\x6a\x6b\x05\x04\x03\
-	\x02\x6b\x6c\x07\x15\x02\x02\x6c\x11\x03\x02\x02\x02\x6d\x6e\x07\x16\x02\
-	\x02\x6e\x6f\x05\x04\x03\x02\x6f\x70\x07\x15\x02\x02\x70\x13\x03\x02\x02\
-	\x02\x71\x72\x07\x17\x02\x02\x72\x73\x05\x04\x03\x02\x73\x74\x07\x15\x02\
-	\x02\x74\x15\x03\x02\x02\x02\x75\x76\x05\x18\x0d\x02\x76\x17\x03\x02\x02\
-	\x02\x77\x78\x07\x18\x02\x02\x78\x7b\x07\x1e\x02\x02\x79\x7a\x07\x14\x02\
-	\x02\x7a\x7c\x05\x04\x03\x02\x7b\x79\x03\x02\x02\x02\x7b\x7c\x03\x02\x02\
-	\x02\x7c\x7d\x03\x02\x02\x02\x7d\x7e\x07\x15\x02\x02\x7e\x19\x03\x02\x02\
-	\x02\x7f\u{80}\x07\x1e\x02\x02\u{80}\u{81}\x07\x19\x02\x02\u{81}\x1b\x03\
-	\x02\x02\x02\u{82}\u{83}\x07\x1e\x02\x02\u{83}\u{84}\x07\x1a\x02\x02\u{84}\
-	\x1d\x03\x02\x02\x02\u{85}\u{89}\x05\x0a\x06\x02\u{86}\u{88}\x05\x0a\x06\
-	\x02\u{87}\u{86}\x03\x02\x02\x02\u{88}\u{8b}\x03\x02\x02\x02\u{89}\u{87}\
-	\x03\x02\x02\x02\u{89}\u{8a}\x03\x02\x02\x02\u{8a}\x1f\x03\x02\x02\x02\u{8b}\
-	\u{89}\x03\x02\x02\x02\u{8c}\u{90}\x05\x16\x0c\x02\u{8d}\u{8f}\x05\x16\x0c\
-	\x02\u{8e}\u{8d}\x03\x02\x02\x02\u{8f}\u{92}\x03\x02\x02\x02\u{90}\u{8e}\
-	\x03\x02\x02\x02\u{90}\u{91}\x03\x02\x02\x02\u{91}\x21\x03\x02\x02\x02\u{92}\
-	\u{90}\x03\x02\x02\x02\u{93}\u{95}\x07\x1b\x02\x02\u{94}\u{96}\x05\x20\x11\
-	\x02\u{95}\u{94}\x03\x02\x02\x02\u{95}\u{96}\x03\x02\x02\x02\u{96}\u{98}\
-	\x03\x02\x02\x02\u{97}\u{99}\x05\x1e\x10\x02\u{98}\u{97}\x03\x02\x02\x02\
-	\u{98}\u{99}\x03\x02\x02\x02\u{99}\u{9a}\x03\x02\x02\x02\u{9a}\u{9b}\x07\
-	\x1c\x02\x02\u{9b}\x23\x03\x02\x02\x02\u{9c}\u{9d}\x07\x1d\x02\x02\u{9d}\
-	\u{9e}\x07\x1e\x02\x02\u{9e}\x25\x03\x02\x02\x02\u{9f}\u{a0}\x05\x24\x13\
-	\x02\u{a0}\u{a1}\x05\x22\x12\x02\u{a1}\x27\x03\x02\x02\x02\x0e\x30\x38\x3a\
-	\x42\x4a\x54\x5a\x7b\u{89}\u{90}\u{95}\u{98}";
+	\x05\x03\x05\x03\x05\x03\x05\x03\x05\x03\x05\x03\x05\x05\x05\x56\x0a\x05\
+	\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x05\x06\x5d\x0a\x06\x03\x07\x03\
+	\x07\x03\x07\x03\x07\x03\x07\x03\x07\x03\x07\x03\x08\x03\x08\x03\x08\x03\
+	\x08\x03\x09\x03\x09\x03\x09\x03\x09\x03\x09\x03\x09\x03\x0a\x03\x0a\x03\
+	\x0a\x03\x0a\x03\x0b\x03\x0b\x03\x0b\x03\x0b\x03\x0c\x03\x0c\x03\x0d\x03\
+	\x0d\x03\x0d\x03\x0d\x05\x0d\x7e\x0a\x0d\x03\x0d\x03\x0d\x03\x0e\x03\x0e\
+	\x03\x0e\x03\x0f\x03\x0f\x03\x0f\x03\x10\x03\x10\x07\x10\u{8a}\x0a\x10\x0c\
+	\x10\x0e\x10\u{8d}\x0b\x10\x03\x11\x03\x11\x07\x11\u{91}\x0a\x11\x0c\x11\
+	\x0e\x11\u{94}\x0b\x11\x03\x12\x03\x12\x05\x12\u{98}\x0a\x12\x03\x12\x05\
+	\x12\u{9b}\x0a\x12\x03\x12\x03\x12\x03\x13\x03\x13\x03\x13\x03\x14\x03\x14\
+	\x03\x14\x03\x14\x02\x03\x02\x15\x02\x04\x06\x08\x0a\x0c\x0e\x10\x12\x14\
+	\x16\x18\x1a\x1c\x1e\x20\x22\x24\x26\x02\x04\x03\x02\x09\x0a\x03\x02\x0b\
+	\x0c\x02\u{a5}\x02\x30\x03\x02\x02\x02\x04\x3d\x03\x02\x02\x02\x06\x45\x03\
+	\x02\x02\x02\x08\x55\x03\x02\x02\x02\x0a\x5c\x03\x02\x02\x02\x0c\x5e\x03\
+	\x02\x02\x02\x0e\x65\x03\x02\x02\x02\x10\x69\x03\x02\x02\x02\x12\x6f\x03\
+	\x02\x02\x02\x14\x73\x03\x02\x02\x02\x16\x77\x03\x02\x02\x02\x18\x79\x03\
+	\x02\x02\x02\x1a\u{81}\x03\x02\x02\x02\x1c\u{84}\x03\x02\x02\x02\x1e\u{87}\
+	\x03\x02\x02\x02\x20\u{8e}\x03\x02\x02\x02\x22\u{95}\x03\x02\x02\x02\x24\
+	\u{9e}\x03\x02\x02\x02\x26\u{a1}\x03\x02\x02\x02\x28\x29\x08\x02\x01\x02\
+	\x29\x31\x07\x03\x02\x02\x2a\x31\x07\x04\x02\x02\x2b\x2c\x07\x05\x02\x02\
+	\x2c\x31\x05\x02\x02\x06\x2d\x2e\x07\x06\x02\x02\x2e\x2f\x07\x1e\x02\x02\
+	\x2f\x31\x05\x04\x03\x02\x30\x28\x03\x02\x02\x02\x30\x2a\x03\x02\x02\x02\
+	\x30\x2b\x03\x02\x02\x02\x30\x2d\x03\x02\x02\x02\x31\x3a\x03\x02\x02\x02\
+	\x32\x33\x0c\x04\x02\x02\x33\x34\x07\x07\x02\x02\x34\x39\x05\x02\x02\x05\
+	\x35\x36\x0c\x03\x02\x02\x36\x37\x07\x08\x02\x02\x37\x39\x05\x02\x02\x04\
+	\x38\x32\x03\x02\x02\x02\x38\x35\x03\x02\x02\x02\x39\x3c\x03\x02\x02\x02\
+	\x3a\x38\x03\x02\x02\x02\x3a\x3b\x03\x02\x02\x02\x3b\x03\x03\x02\x02\x02\
+	\x3c\x3a\x03\x02\x02\x02\x3d\x42\x05\x06\x04\x02\x3e\x3f\x09\x02\x02\x02\
+	\x3f\x41\x05\x06\x04\x02\x40\x3e\x03\x02\x02\x02\x41\x44\x03\x02\x02\x02\
+	\x42\x40\x03\x02\x02\x02\x42\x43\x03\x02\x02\x02\x43\x05\x03\x02\x02\x02\
+	\x44\x42\x03\x02\x02\x02\x45\x4a\x05\x08\x05\x02\x46\x47\x09\x03\x02\x02\
+	\x47\x49\x05\x08\x05\x02\x48\x46\x03\x02\x02\x02\x49\x4c\x03\x02\x02\x02\
+	\x4a\x48\x03\x02\x02\x02\x4a\x4b\x03\x02\x02\x02\x4b\x07\x03\x02\x02\x02\
+	\x4c\x4a\x03\x02\x02\x02\x4d\x4e\x07\x0d\x02\x02\x4e\x4f\x05\x04\x03\x02\
+	\x4f\x50\x07\x0e\x02\x02\x50\x56\x03\x02\x02\x02\x51\x56\x05\x02\x02\x02\
+	\x52\x56\x07\x1e\x02\x02\x53\x56\x07\x1f\x02\x02\x54\x56\x07\x21\x02\x02\
+	\x55\x4d\x03\x02\x02\x02\x55\x51\x03\x02\x02\x02\x55\x52\x03\x02\x02\x02\
+	\x55\x53\x03\x02\x02\x02\x55\x54\x03\x02\x02\x02\x56\x09\x03\x02\x02\x02\
+	\x57\x5d\x05\x0c\x07\x02\x58\x5d\x05\x0e\x08\x02\x59\x5d\x05\x10\x09\x02\
+	\x5a\x5d\x05\x12\x0a\x02\x5b\x5d\x05\x14\x0b\x02\x5c\x57\x03\x02\x02\x02\
+	\x5c\x58\x03\x02\x02\x02\x5c\x59\x03\x02\x02\x02\x5c\x5a\x03\x02\x02\x02\
+	\x5c\x5b\x03\x02\x02\x02\x5d\x0b\x03\x02\x02\x02\x5e\x5f\x07\x0f\x02\x02\
+	\x5f\x60\x05\x04\x03\x02\x60\x61\x07\x10\x02\x02\x61\x62\x05\x22\x12\x02\
+	\x62\x63\x07\x11\x02\x02\x63\x64\x05\x22\x12\x02\x64\x0d\x03\x02\x02\x02\
+	\x65\x66\x07\x12\x02\x02\x66\x67\x05\x04\x03\x02\x67\x68\x05\x22\x12\x02\
+	\x68\x0f\x03\x02\x02\x02\x69\x6a\x07\x13\x02\x02\x6a\x6b\x07\x1e\x02\x02\
+	\x6b\x6c\x07\x14\x02\x02\x6c\x6d\x05\x04\x03\x02\x6d\x6e\x07\x15\x02\x02\
+	\x6e\x11\x03\x02\x02\x02\x6f\x70\x07\x16\x02\x02\x70\x71\x05\x04\x03\x02\
+	\x71\x72\x07\x15\x02\x02\x72\x13\x03\x02\x02\x02\x73\x74\x07\x17\x02\x02\
+	\x74\x75\x05\x04\x03\x02\x75\x76\x07\x15\x02\x02\x76\x15\x03\x02\x02\x02\
+	\x77\x78\x05\x18\x0d\x02\x78\x17\x03\x02\x02\x02\x79\x7a\x07\x18\x02\x02\
+	\x7a\x7d\x07\x1e\x02\x02\x7b\x7c\x07\x14\x02\x02\x7c\x7e\x05\x04\x03\x02\
+	\x7d\x7b\x03\x02\x02\x02\x7d\x7e\x03\x02\x02\x02\x7e\x7f\x03\x02\x02\x02\
+	\x7f\u{80}\x07\x15\x02\x02\u{80}\x19\x03\x02\x02\x02\u{81}\u{82}\x07\x1e\
+	\x02\x02\u{82}\u{83}\x07\x19\x02\x02\u{83}\x1b\x03\x02\x02\x02\u{84}\u{85}\
+	\x07\x1e\x02\x02\u{85}\u{86}\x07\x1a\x02\x02\u{86}\x1d\x03\x02\x02\x02\u{87}\
+	\u{8b}\x05\x0a\x06\x02\u{88}\u{8a}\x05\x0a\x06\x02\u{89}\u{88}\x03\x02\x02\
+	\x02\u{8a}\u{8d}\x03\x02\x02\x02\u{8b}\u{89}\x03\x02\x02\x02\u{8b}\u{8c}\
+	\x03\x02\x02\x02\u{8c}\x1f\x03\x02\x02\x02\u{8d}\u{8b}\x03\x02\x02\x02\u{8e}\
+	\u{92}\x05\x16\x0c\x02\u{8f}\u{91}\x05\x16\x0c\x02\u{90}\u{8f}\x03\x02\x02\
+	\x02\u{91}\u{94}\x03\x02\x02\x02\u{92}\u{90}\x03\x02\x02\x02\u{92}\u{93}\
+	\x03\x02\x02\x02\u{93}\x21\x03\x02\x02\x02\u{94}\u{92}\x03\x02\x02\x02\u{95}\
+	\u{97}\x07\x1b\x02\x02\u{96}\u{98}\x05\x20\x11\x02\u{97}\u{96}\x03\x02\x02\
+	\x02\u{97}\u{98}\x03\x02\x02\x02\u{98}\u{9a}\x03\x02\x02\x02\u{99}\u{9b}\
+	\x05\x1e\x10\x02\u{9a}\u{99}\x03\x02\x02\x02\u{9a}\u{9b}\x03\x02\x02\x02\
+	\u{9b}\u{9c}\x03\x02\x02\x02\u{9c}\u{9d}\x07\x1c\x02\x02\u{9d}\x23\x03\x02\
+	\x02\x02\u{9e}\u{9f}\x07\x1d\x02\x02\u{9f}\u{a0}\x07\x1e\x02\x02\u{a0}\x25\
+	\x03\x02\x02\x02\u{a1}\u{a2}\x05\x24\x13\x02\u{a2}\u{a3}\x05\x22\x12\x02\
+	\u{a3}\x27\x03\x02\x02\x02\x0e\x30\x38\x3a\x42\x4a\x55\x5c\x7d\u{8b}\u{92}\
+	\u{97}\u{9a}";
 

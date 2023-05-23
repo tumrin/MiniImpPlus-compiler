@@ -9,15 +9,14 @@ truth : 'true' | 'false' | 'not' truth | 'is' Identifier expr | truth 'or' truth
 
 expr   : term (('+' | '-') term)* ;
 term   : factor (('*' | '/') factor)* ;
-factor : ('(' expr ')') | truth | Identifier | Number ;
+factor : ('(' expr ')') | truth | Identifier | Number | STRING;
 
-stmt   : select | iterat | set | write ;
+stmt   : select | iterat | set | write | read;
 select : 'if' expr 'then' scope 'else' scope ;
 iterat : 'while' expr scope ;
 set    : 'set' Identifier '=' expr ';' ;
 write  : 'write' expr ';' ;
 read   : 'read' expr ';' ;
-
 
 decl     : variable ;
 variable : 'var' Identifier ( '=' expr )? ';' ;
