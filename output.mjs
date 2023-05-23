@@ -34,40 +34,33 @@ const rl_PLAYER_TWO_GESTURE = readline.createInterface({ input, output });
                         rl_PLAYER_TWO_GESTURE.close();
 if (PLAYER_TWO_GESTURE === PLAYER_ONE_GESTURE ){ 
 console.log("Draw")
-};
-if (PLAYER_TWO_GESTURE === "rock" && PLAYER_ONE_GESTURE === "scissors" ){ 
+}if (PLAYER_TWO_GESTURE === "rock" && PLAYER_ONE_GESTURE === "scissors" ){ 
 console.log(PLAYER_TWO);
 console.log(" wins")
-};
-if (PLAYER_TWO_GESTURE === "rock" && PLAYER_ONE_GESTURE === "paper" ){ 
+}if (PLAYER_TWO_GESTURE === "rock" && PLAYER_ONE_GESTURE === "paper" ){ 
 console.log(PLAYER_ONE);
 console.log(" wins")
-};
-if (PLAYER_TWO_GESTURE === "scissors" && PLAYER_ONE_GESTURE === "paper" ){ 
+}if (PLAYER_TWO_GESTURE === "scissors" && PLAYER_ONE_GESTURE === "paper" ){ 
 console.log(PLAYER_TWO);
 console.log(" wins")
-};
-if (PLAYER_TWO_GESTURE === "scissors" && PLAYER_ONE_GESTURE === "rock" ){ 
+}if (PLAYER_TWO_GESTURE === "scissors" && PLAYER_ONE_GESTURE === "rock" ){ 
 console.log(PLAYER_ONE);
 console.log(" wins")
-};
-if (PLAYER_TWO_GESTURE === "paper" && PLAYER_ONE_GESTURE === "scissors" ){ 
+}if (PLAYER_TWO_GESTURE === "paper" && PLAYER_ONE_GESTURE === "scissors" ){ 
 console.log(PLAYER_ONE);
 console.log(" wins")
-};
-if (PLAYER_TWO_GESTURE === "paper" && PLAYER_ONE_GESTURE === "rock" ){ 
+}if (PLAYER_TWO_GESTURE === "paper" && PLAYER_ONE_GESTURE === "rock" ){ 
 console.log(PLAYER_TWO);
 console.log(" wins")
-};
-console.log("Do you want to play again?");
+}console.log("Do you want to play again?");
 const rl_INPUT = readline.createInterface({ input, output });
                         INPUT = await rl_INPUT.question('');
                         rl_INPUT.close();
 if (INPUT === "yes" ){ 
 REPLAY = true
 }else{ 
-REPLAY = false
-};
+REPLAY = false;
 
+}
 }
 }

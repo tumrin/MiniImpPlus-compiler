@@ -17,41 +17,43 @@ fn main() {
         println!("Starting game with players:");
         println!("{PLAYER_ONE}");
         println!("{PLAYER_TWO}");
-        println!("Player 1, choose a gesture (rock/paper/scissors): ");
+        println!("Choose a gesture (rock/paper/scissors) for the following player: ");
+        println!("{PLAYER_ONE}");
         let mut PLAYER_ONE_GESTURE = String::new();
         std::io::stdin().read_line(&mut PLAYER_ONE_GESTURE).unwrap();
         PLAYER_ONE_GESTURE = PLAYER_ONE_GESTURE.trim().to_string();
-        println!("Player 2, choose a gesture (rock/paper/scissors): ");
+        println!("Choose a gesture (rock/paper/scissors) for the following player: ");
+        println!("{PLAYER_TWO}");
         let mut PLAYER_TWO_GESTURE = String::new();
         std::io::stdin().read_line(&mut PLAYER_TWO_GESTURE).unwrap();
         PLAYER_TWO_GESTURE = PLAYER_TWO_GESTURE.trim().to_string();
         if PLAYER_TWO_GESTURE == PLAYER_ONE_GESTURE {
             println!("Draw")
-        };
+        }
         if PLAYER_TWO_GESTURE == "rock" && PLAYER_ONE_GESTURE == "scissors" {
             println!("{PLAYER_TWO}");
             println!(" wins")
-        };
+        }
         if PLAYER_TWO_GESTURE == "rock" && PLAYER_ONE_GESTURE == "paper" {
             println!("{PLAYER_ONE}");
             println!(" wins")
-        };
+        }
         if PLAYER_TWO_GESTURE == "scissors" && PLAYER_ONE_GESTURE == "paper" {
             println!("{PLAYER_TWO}");
             println!(" wins")
-        };
+        }
         if PLAYER_TWO_GESTURE == "scissors" && PLAYER_ONE_GESTURE == "rock" {
             println!("{PLAYER_ONE}");
             println!(" wins")
-        };
+        }
         if PLAYER_TWO_GESTURE == "paper" && PLAYER_ONE_GESTURE == "scissors" {
             println!("{PLAYER_ONE}");
             println!(" wins")
-        };
+        }
         if PLAYER_TWO_GESTURE == "paper" && PLAYER_ONE_GESTURE == "rock" {
             println!("{PLAYER_TWO}");
             println!(" wins")
-        };
+        }
         println!("Do you want to play again?");
         let mut INPUT = String::new();
         std::io::stdin().read_line(&mut INPUT).unwrap();
@@ -59,7 +61,7 @@ fn main() {
         if INPUT == "yes" {
             REPLAY = true
         } else {
-            REPLAY = false
-        };
+            REPLAY = false;
+        }
     }
 }
