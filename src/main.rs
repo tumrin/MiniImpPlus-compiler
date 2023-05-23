@@ -1,7 +1,7 @@
 use antlr_rust::{
     common_token_stream::CommonTokenStream,
     parser_rule_context::ParserRuleContext,
-    rule_context::CustomRuleContext,
+    rule_context::{self, CustomRuleContext, RuleContext},
     token::{GenericToken, Token},
     tree::{ParseTree, ParseTreeVisitorCompat, TerminalNode, Tree},
     InputStream, Parser,
@@ -17,9 +17,13 @@ use mini_imp_plus::{
 };
 use std::{borrow::Cow, format, fs};
 
-use crate::mini_imp::miniimpparser::{
-    DeclsContextAttrs, ExprContextAttrs, FactorContextAttrs, ProgContextAttrs, ScopeContextAttrs,
-    SetContextAttrs, StmtsContextAttrs, TermContextAttrs, TruthContextAttrs, VariableContextAttrs,
+use crate::mini_imp::{
+    miniimplexer::ruleNames,
+    miniimpparser::{
+        DeclsContextAttrs, ExprContextAttrs, FactorContextAttrs, ProgContextAttrs,
+        ScopeContextAttrs, SetContextAttrs, StmtsContextAttrs, TermContextAttrs, TruthContextAttrs,
+        VariableContextAttrs,
+    },
 };
 
 mod mini_imp;
@@ -77,8 +81,7 @@ fn main() {
 
             write \"Do you want to play again?\";
             read INPUT;
-            if is INPUT \"yes\" then begin set REPLAY = true; end. else begin set REPLAY = false;
-        end.
+            if is INPUT \"yes\" then begin set REPLAY = true; end. else begin set REPLAY = false end.;
     end.;";
 
     let language = Args::parse().language;
@@ -94,7 +97,6 @@ fn main() {
     let root = parser.prog().unwrap();
     let mut visitor = TestVisitor(String::new());
     let output = visitor.visit(&*root);
-    println!("{output}");
     // while !parser.matched_eof {
     //     let current = parser.get_current_token().clone();
     //     let stream = parser.get_input_stream_mut();
@@ -182,7 +184,7 @@ impl MiniImpVisitorCompat<'_> for TestVisitor {
         if ctx.STRING().is_some() {
             print!("{:?}", ctx.STRING().unwrap());
         } else if ctx.truth().is_some() {
-            print!("{:?}", ctx.truth().unwrap().get_text());
+            print!("{:?}", ctx.truth().unwrap().get_text()); //TODO: Change this to account for if
         } else if ctx.Identifier().is_some() {
             print!("{:?}", ctx.Identifier().unwrap());
         } else if ctx.expr().is_some() {
@@ -257,6 +259,10 @@ impl MiniImpVisitorCompat<'_> for TestVisitor {
     }
 
     fn visit_scope(&mut self, ctx: &mini_imp::miniimpparser::ScopeContext<'_>) -> Self::Return {
+        // No idea what 97 means here but 95 is in every if statement without else
+        if ctx.get_invoking_state() == 97 {
+            print!("else ")
+        }
         print!("{{\n");
         let string = self.visit_children(ctx);
         print!("}}\n");
