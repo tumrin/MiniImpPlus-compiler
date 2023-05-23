@@ -3,7 +3,7 @@ use antlr_rust::{
     parser_rule_context::ParserRuleContext,
     rule_context::CustomRuleContext,
     token::{GenericToken, Token},
-    tree::{ParseTree, ParseTreeVisitorCompat, TerminalNode},
+    tree::{ParseTree, ParseTreeVisitorCompat, TerminalNode, Tree},
     InputStream, Parser,
 };
 use clap::Parser as ArgParser;
@@ -162,6 +162,11 @@ impl ParseTreeVisitorCompat<'_> for TestVisitor {
 }
 impl MiniImpVisitorCompat<'_> for TestVisitor {
     fn visit_truth(&mut self, ctx: &mini_imp::miniimpparser::TruthContext<'_>) -> Self::Return {
+        if ctx.Identifier().is_some() {
+            print!("truth{:?}", ctx.Identifier().unwrap());
+        } else if ctx.expr().is_some() {
+            print!("{:?}", ctx.expr().unwrap());
+        }
         self.visit_children(ctx)
     }
 
@@ -174,39 +179,43 @@ impl MiniImpVisitorCompat<'_> for TestVisitor {
     }
 
     fn visit_factor(&mut self, ctx: &mini_imp::miniimpparser::FactorContext<'_>) -> Self::Return {
-        println!(
-            "{:?}",
-            ctx.STRING()
-                .or(ctx.Identifier())
-                .or(ctx.truth().map(|truth| truth
-                    .truth_all()
-                    .first()
-                    .unwrap()
-                    .Identifier()
-                    .unwrap()))
-        );
+        if ctx.STRING().is_some() {
+            print!("{:?}", ctx.STRING().unwrap());
+        } else if ctx.truth().is_some() {
+            print!("{:?}", ctx.truth().unwrap().get_text());
+        } else if ctx.Identifier().is_some() {
+            print!("{:?}", ctx.Identifier().unwrap());
+        } else if ctx.expr().is_some() {
+            print!("{:?}", ctx.expr());
+        }
         self.visit_children(ctx)
     }
 
     fn visit_stmt(&mut self, ctx: &mini_imp::miniimpparser::StmtContext<'_>) -> Self::Return {
+        println!("");
         self.visit_children(ctx)
     }
 
     fn visit_select(&mut self, ctx: &mini_imp::miniimpparser::SelectContext<'_>) -> Self::Return {
+        print!("if ");
         self.visit_children(ctx)
     }
 
     fn visit_iterat(&mut self, ctx: &mini_imp::miniimpparser::IteratContext<'_>) -> Self::Return {
+        print!("while ");
         self.visit_children(ctx)
     }
 
     fn visit_set(&mut self, ctx: &mini_imp::miniimpparser::SetContext<'_>) -> Self::Return {
-        println!("{:?} =", ctx.Identifier().unwrap());
+        print!("{:?} =", ctx.Identifier().unwrap());
         self.visit_children(ctx)
     }
 
     fn visit_write(&mut self, ctx: &mini_imp::miniimpparser::WriteContext<'_>) -> Self::Return {
-        self.visit_children(ctx)
+        print!("println!(");
+        let string = self.visit_children(ctx);
+        print!(")");
+        string
     }
 
     fn visit_read(&mut self, ctx: &mini_imp::miniimpparser::ReadContext<'_>) -> Self::Return {
@@ -221,7 +230,7 @@ impl MiniImpVisitorCompat<'_> for TestVisitor {
         &mut self,
         ctx: &mini_imp::miniimpparser::VariableContext<'_>,
     ) -> Self::Return {
-        println!("let mut {:?} =", ctx.Identifier().unwrap());
+        print!("let mut {:?} =", ctx.Identifier().unwrap());
         self.visit_children(ctx)
     }
 
@@ -248,7 +257,10 @@ impl MiniImpVisitorCompat<'_> for TestVisitor {
     }
 
     fn visit_scope(&mut self, ctx: &mini_imp::miniimpparser::ScopeContext<'_>) -> Self::Return {
-        self.visit_children(ctx)
+        print!("{{\n");
+        let string = self.visit_children(ctx);
+        print!("}}\n");
+        string
     }
 
     fn visit_init(&mut self, ctx: &mini_imp::miniimpparser::InitContext<'_>) -> Self::Return {
