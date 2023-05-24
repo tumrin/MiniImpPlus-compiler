@@ -24,7 +24,7 @@ struct Args {
 fn main() {
     let test = "program DEMOAPP begin 
         var REPLAY = true; 
-        while is REPLAY true begin
+        while REPLAY begin
             var PLAYER_ONE = \"\";
             var PLAYER_ONE_GESTURE = \"\"; 
             var PLAYER_TWO = \"\"; 
@@ -93,6 +93,7 @@ fn main() {
         end.
     end.";
 
+    // The language we are translating to
     let language = Args::parse().language;
 
     let stream = InputStream::new(test);
@@ -101,6 +102,8 @@ fn main() {
     let mut parser = MiniImpParser::new(token_stream);
 
     let mut previous_token: Option<Box<GenericToken<Cow<str>>>> = None;
+
+    // To-be contents of the source code of the destination language
     let mut output = String::new();
     while !parser.matched_eof {
         let current = parser.get_current_token().clone();
@@ -114,6 +117,7 @@ fn main() {
         };
         let next = stream.get(next_index).clone();
 
+        // Translate the token to the destination language
         let token = match language {
             Languages::Rust => handle_token(previous_token.clone(), current.clone(), next, &Rust),
             Languages::Javascript => {
@@ -121,6 +125,7 @@ fn main() {
             }
         };
 
+        // Add evaluated token to output
         output.push_str(&token);
         print!("{token}");
         previous_token = Some(current);
@@ -130,6 +135,8 @@ fn main() {
             parser.matched_eof = true;
         }
     }
+
+    // Choose the output file type according to the destination language
     let file_type = match language {
         Languages::Rust => "rs",
         Languages::Javascript => "mjs",
