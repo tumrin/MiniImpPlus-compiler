@@ -12,3 +12,5 @@ The parser traverses through the token in an index-by-index way, i.e. in order. 
 # Why this instead of visitor or listener?
 Visitor and listener were both considered but there were issues getting them working and the partly working implementation was much more verbose and contained more boilerplate code compared to current implementation.
 These patterns were also poorly documented in the antlr_rust crate although that is on us for choosing to use Rust in this exercise as the antlr crate is currently in beta phase.
+
+Attempt at visitor pattern can be found in the "visitor" branch of this repository
