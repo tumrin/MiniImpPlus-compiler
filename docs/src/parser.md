@@ -7,7 +7,7 @@ their respective file types and contain the freshly-baked source code ready to b
 
 The translations function is part of a translateMiniImp trait which must be implemeted for all languages that the translator supports. 
 
-The parser traverses through the token in an index-by-index way, i.e. in order. Each of the token is printed to the terminal, so the user can basically see the destination language being compiled.
+The parser traverses through the token in an index-by-index way, i.e. in order. Each of the tokens is printed to the terminal, so the user can basically see the destination language being compiled.
 
 # Why this instead of visitor or listener?
 Visitor and listener were both considered but there were issues getting them working and the partly working implementation was much more verbose and contained more boilerplate code compared to current implementation.

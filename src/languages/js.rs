@@ -80,7 +80,7 @@ import { stdin as input, stdout as output } from 'node:process';\n
                     _ => value,
                 },
             },
-            MiniImpPlus::Number(_) => "".to_string(), //TODO:
+            MiniImpPlus::Number(number) => number,
             MiniImpPlus::WhiteSpace => "\n".to_string(),
             MiniImpPlus::String(value) => match previous {
                 Some(MiniImpPlus::Write) => format!("({value})"),
