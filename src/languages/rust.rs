@@ -61,7 +61,7 @@ impl TranslateMiniImpPlus for Rust {
                     format!("{} == ", value)
                 }
                 Some(MiniImpPlus::Program) => "".to_string(),
-                Some(MiniImpPlus::Identifier(_)) => format!("{}", value),
+                Some(MiniImpPlus::Identifier(_)) => value,
                 Some(_) | None => match next {
                     MiniImpPlus::AsNumber => format!("{value}.parse::<i32>().unwrap()"),
                     MiniImpPlus::AsString => format!("{value}.to_string()"),

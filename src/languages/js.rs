@@ -10,8 +10,14 @@ impl TranslateMiniImpPlus for Javascript {
         next: MiniImpPlus,
     ) -> String {
         match value {
-            MiniImpPlus::True => "true".to_string(),
-            MiniImpPlus::False => "false".to_string(),
+            MiniImpPlus::True => match previous {
+                Some(MiniImpPlus::Identifier(_)) => "true)".to_string(),
+                None | Some(_) => "true".to_string(),
+            },
+            MiniImpPlus::False => match previous {
+                Some(MiniImpPlus::Identifier(_)) => "false)".to_string(),
+                None | Some(_) => "false".to_string(),
+            },
             MiniImpPlus::Not => "!".to_string(),
             MiniImpPlus::Is => {
                 if let MiniImpPlus::Identifier(_) = next {
@@ -36,7 +42,7 @@ impl TranslateMiniImpPlus for Javascript {
             MiniImpPlus::If => "if (".to_string(),
             MiniImpPlus::Then => " )".to_string(),
             MiniImpPlus::Else => "else".to_string(),
-            MiniImpPlus::While => "".to_string(),
+            MiniImpPlus::While => "while".to_string(),
             MiniImpPlus::Set => "".to_string(),
             MiniImpPlus::Equals => " = ".to_string(),
             MiniImpPlus::Semicolon => ";\n".to_string(),
@@ -56,9 +62,6 @@ import { stdin as input, stdout as output } from 'node:process';\n
                 Some(MiniImpPlus::Write) => {
                     format!("({})", value)
                 }
-                Some(MiniImpPlus::While) => {
-                    format!("while( {} )", value)
-                }
                 Some(MiniImpPlus::Read) => {
                     format!(
                         "const rl_{value} = readline.createInterface({{ input, output }});
@@ -67,20 +70,21 @@ import { stdin as input, stdout as output } from 'node:process';\n
                     )
                 }
                 Some(MiniImpPlus::Is) => {
-                    format!("{} === ", value)
+                    format!("({} === ", value)
                 }
                 Some(MiniImpPlus::Program) => "".to_string(),
-                Some(MiniImpPlus::Identifier(_)) => format!("{}", value),
+                Some(MiniImpPlus::Identifier(_)) => format!("{value})"),
                 Some(_) | None => match next {
                     MiniImpPlus::AsNumber => format!("Number({value})"),
                     MiniImpPlus::AsString => format!("{value}.toString()"),
                     _ => value,
                 },
             },
-            MiniImpPlus::Number(_) => "".to_string(), //TODO:
+            MiniImpPlus::Number(number) => number,
             MiniImpPlus::WhiteSpace => "\n".to_string(),
             MiniImpPlus::String(value) => match previous {
                 Some(MiniImpPlus::Write) => format!("({value})"),
+                Some(MiniImpPlus::Identifier(_)) => format!("{value})"),
                 None | Some(_) => value,
             },
             MiniImpPlus::Unknown => "".to_string(),

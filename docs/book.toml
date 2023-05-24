@@ -4,3 +4,6 @@ language = "en"
 multilingual = false
 src = "src"
 title = "MiniImp plus documentation"
+[output.html]
+
+[output.pdf]
