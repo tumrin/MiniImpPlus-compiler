@@ -22,10 +22,9 @@ struct Args {
 }
 
 fn main() {
-    let test = "program DEMOAPP 
-    begin 
+    let test = "program DEMOAPP begin 
         var REPLAY = true; 
-        while REPLAY begin
+        while is REPLAY true begin
             var PLAYER_ONE = \"\";
             var PLAYER_ONE_GESTURE = \"\"; 
             var PLAYER_TWO = \"\"; 
@@ -47,25 +46,50 @@ fn main() {
 
             write \"Choose a gesture (rock/paper/scissors) for the following player: \";
             write PLAYER_TWO;
-            read PLAYER_TWO_GESTURE; 
+            read PLAYER_TWO_GESTURE;
 
-            if is PLAYER_TWO_GESTURE PLAYER_ONE_GESTURE then begin write \"Draw\" end. 
+            if is PLAYER_TWO_GESTURE PLAYER_ONE_GESTURE then begin 
+                write \"Draw\";
+            end.
             
-            if is PLAYER_TWO_GESTURE \"rock\" and is PLAYER_ONE_GESTURE \"scissors\" then begin write PLAYER_TWO; write \" wins\" end.
+            if is PLAYER_TWO_GESTURE \"rock\" and is PLAYER_ONE_GESTURE \"scissors\" then begin 
+                write PLAYER_TWO; 
+                write \" wins\"; 
+            end.
 
-            if is PLAYER_TWO_GESTURE \"rock\" and is PLAYER_ONE_GESTURE \"paper\" then begin write PLAYER_ONE; write \" wins\" end.
+            if is PLAYER_TWO_GESTURE \"rock\" and is PLAYER_ONE_GESTURE \"paper\" then begin 
+                write PLAYER_ONE; 
+                write \" wins\"; 
+            end.
 
-            if is PLAYER_TWO_GESTURE \"scissors\" and is PLAYER_ONE_GESTURE \"paper\" then begin write PLAYER_TWO; write \" wins\" end.
+            if is PLAYER_TWO_GESTURE \"scissors\" and is PLAYER_ONE_GESTURE \"paper\" then begin 
+                write PLAYER_TWO; 
+                write \" wins\"; 
+            end.
 
-            if is PLAYER_TWO_GESTURE \"scissors\" and is PLAYER_ONE_GESTURE \"rock\" then begin write PLAYER_ONE; write \" wins\" end. 
+            if is PLAYER_TWO_GESTURE \"scissors\" and is PLAYER_ONE_GESTURE \"rock\" then begin 
+                write PLAYER_ONE; 
+                write \" wins\"; 
+            end.
 
-            if is PLAYER_TWO_GESTURE \"paper\" and is PLAYER_ONE_GESTURE \"scissors\" then begin write PLAYER_ONE; write \" wins\" end.
+            if is PLAYER_TWO_GESTURE \"paper\" and is PLAYER_ONE_GESTURE \"scissors\" then begin 
+                write PLAYER_ONE; 
+                write \" wins\"; 
+            end.
 
-            if is PLAYER_TWO_GESTURE \"paper\" and is PLAYER_ONE_GESTURE \"rock\" then begin write PLAYER_TWO; write \" wins\" end. 
+            if is PLAYER_TWO_GESTURE \"paper\" and is PLAYER_ONE_GESTURE \"rock\" then begin 
+                write PLAYER_TWO; 
+                write \" wins\"; 
+            end.
 
             write \"Do you want to play again?\";
             read INPUT;
-            if is INPUT \"yes\" then begin set REPLAY = true end. else begin set REPLAY = false; end.
+            if is INPUT \"yes\" then begin 
+                set REPLAY = true; 
+            end. 
+            else begin 
+                set REPLAY = false; 
+            end.
         end.
     end.";
 

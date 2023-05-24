@@ -1,6 +1,6 @@
 fn main() {
     let mut REPLAY = true;
-    while REPLAY {
+    while REPLAY == true {
         let mut PLAYER_ONE = "";
         let mut PLAYER_ONE_GESTURE = "";
         let mut PLAYER_TWO = "";
@@ -28,38 +28,38 @@ fn main() {
         std::io::stdin().read_line(&mut PLAYER_TWO_GESTURE).unwrap();
         PLAYER_TWO_GESTURE = PLAYER_TWO_GESTURE.trim().to_string();
         if PLAYER_TWO_GESTURE == PLAYER_ONE_GESTURE {
-            println!("Draw")
+            println!("Draw");
         }
         if PLAYER_TWO_GESTURE == "rock" && PLAYER_ONE_GESTURE == "scissors" {
             println!("{PLAYER_TWO}");
-            println!(" wins")
+            println!(" wins");
         }
         if PLAYER_TWO_GESTURE == "rock" && PLAYER_ONE_GESTURE == "paper" {
             println!("{PLAYER_ONE}");
-            println!(" wins")
+            println!(" wins");
         }
         if PLAYER_TWO_GESTURE == "scissors" && PLAYER_ONE_GESTURE == "paper" {
             println!("{PLAYER_TWO}");
-            println!(" wins")
+            println!(" wins");
         }
         if PLAYER_TWO_GESTURE == "scissors" && PLAYER_ONE_GESTURE == "rock" {
             println!("{PLAYER_ONE}");
-            println!(" wins")
+            println!(" wins");
         }
         if PLAYER_TWO_GESTURE == "paper" && PLAYER_ONE_GESTURE == "scissors" {
             println!("{PLAYER_ONE}");
-            println!(" wins")
+            println!(" wins");
         }
         if PLAYER_TWO_GESTURE == "paper" && PLAYER_ONE_GESTURE == "rock" {
             println!("{PLAYER_TWO}");
-            println!(" wins")
+            println!(" wins");
         }
         println!("Do you want to play again?");
         let mut INPUT = String::new();
         std::io::stdin().read_line(&mut INPUT).unwrap();
         INPUT = INPUT.trim().to_string();
         if INPUT == "yes" {
-            REPLAY = true
+            REPLAY = true;
         } else {
             REPLAY = false;
         }
