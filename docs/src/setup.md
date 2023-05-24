@@ -1,13 +1,13 @@
 # Setup
 This program is written in rust and therefore Rust compiler is needed to compile and run it. Rust can be installed from [The Rust website](https://www.rust-lang.org/tools/install).
 
-# Compiling
+## Compiling
 ```bash
 # In the project root
 cargo build # build in debug mode
 ```
 
-# Using the translator
+## Using the translator
 You can see the help menu with:
 ```
 cargo run -- --help

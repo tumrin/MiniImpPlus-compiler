@@ -3,6 +3,7 @@ use std::borrow::Cow;
 
 pub mod languages;
 
+/// This enum represents all possible miniimpplus tokens
 pub enum MiniImpPlus {
     True,
     False,
@@ -37,6 +38,8 @@ pub enum MiniImpPlus {
     String(String),
     Unknown,
 }
+
+// Implement trait to convert from token type to the enum
 impl From<Box<GenericToken<Cow<'_, str>>>> for MiniImpPlus {
     fn from(token: Box<GenericToken<Cow<str>>>) -> Self {
         match token.token_type {
@@ -75,7 +78,11 @@ impl From<Box<GenericToken<Cow<'_, str>>>> for MiniImpPlus {
         }
     }
 }
+
+/// This trait must be implemented by all languages that this program can compile miniimpplus to
 pub trait TranslateMiniImpPlus {
+    /// Takes a miniimptoken and both previous and next token and determines what the token
+    /// represents in destination language and returns it as string
     fn translate(
         &self,
         current: MiniImpPlus,

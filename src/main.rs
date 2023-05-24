@@ -23,11 +23,11 @@ struct Args {
 
 fn main() {
     let test =
-        fs::read_to_string("testprogram.mip").expect("Expected testprogram.mip in project root");
+        fs::read_to_string("testprogram.mip").expect("expected testprogram.mip in project root");
 
-    // The language we are translating to
     let language = Args::parse().language;
 
+    // Construct token stream and parser from the testprogram
     let stream = InputStream::new(test.as_str());
     let lexer = mini_imp::miniimplexer::MiniImpLexer::new(stream);
     let token_stream = CommonTokenStream::new(lexer);
@@ -35,8 +35,9 @@ fn main() {
 
     let mut previous_token: Option<Box<GenericToken<Cow<str>>>> = None;
 
-    // To-be contents of the source code of the destination language
+    // String buffer for the contents of the source code of the destination language
     let mut output = String::new();
+
     while !parser.matched_eof {
         let current = parser.get_current_token().clone();
         let stream = parser.get_input_stream_mut();
@@ -61,6 +62,10 @@ fn main() {
         output.push_str(&token);
         print!("{token}");
         previous_token = Some(current);
+
+        // If next token is not EOL consume stream and continue to next token
+        // else set parsers eof flag to true (This is a bit of a misuse of this field as it would
+        // be automatically set if using visitor pattern)
         if stream.la(1) != -1 {
             stream.consume();
         } else {
@@ -73,9 +78,11 @@ fn main() {
         Languages::Rust => "rs",
         Languages::Javascript => "mjs",
     };
-    fs::write(format!("output.{file_type}"), output).unwrap();
+    fs::write(format!("output.{file_type}"), output).expect("expected to be able to write to file");
 }
 
+/// Wrapper function for calling translate on generic language argument and converting arguments to
+/// miniImpPlus enum fields
 fn handle_token(
     previous: Option<Box<GenericToken<Cow<str>>>>,
     current: Box<GenericToken<Cow<str>>>,
