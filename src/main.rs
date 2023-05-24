@@ -22,81 +22,13 @@ struct Args {
 }
 
 fn main() {
-    let test = "program DEMOAPP begin 
-        var REPLAY = true; 
-        while REPLAY begin
-            var PLAYER_ONE = \"\";
-            var PLAYER_ONE_GESTURE = \"\"; 
-            var PLAYER_TWO = \"\"; 
-            var PLAYER_TWO_GESTURE = \"\";
-            var INPUT = \"\";
-
-            write \"Insert name of player 1:\";
-            read PLAYER_ONE; 
-            write \"Insert name of player 2:\";
-            read PLAYER_TWO; 
-
-            write \"Starting game with players:\";
-            write PLAYER_ONE;
-            write PLAYER_TWO;
-
-            write \"Choose a gesture (rock/paper/scissors) for the following player: \";
-            write PLAYER_ONE;
-            read PLAYER_ONE_GESTURE; 
-
-            write \"Choose a gesture (rock/paper/scissors) for the following player: \";
-            write PLAYER_TWO;
-            read PLAYER_TWO_GESTURE;
-
-            if is PLAYER_TWO_GESTURE PLAYER_ONE_GESTURE then begin 
-                write \"Draw\";
-            end.
-            
-            if is PLAYER_TWO_GESTURE \"rock\" and is PLAYER_ONE_GESTURE \"scissors\" then begin 
-                write PLAYER_TWO; 
-                write \" wins\"; 
-            end.
-
-            if is PLAYER_TWO_GESTURE \"rock\" and is PLAYER_ONE_GESTURE \"paper\" then begin 
-                write PLAYER_ONE; 
-                write \" wins\"; 
-            end.
-
-            if is PLAYER_TWO_GESTURE \"scissors\" and is PLAYER_ONE_GESTURE \"paper\" then begin 
-                write PLAYER_TWO; 
-                write \" wins\"; 
-            end.
-
-            if is PLAYER_TWO_GESTURE \"scissors\" and is PLAYER_ONE_GESTURE \"rock\" then begin 
-                write PLAYER_ONE; 
-                write \" wins\"; 
-            end.
-
-            if is PLAYER_TWO_GESTURE \"paper\" and is PLAYER_ONE_GESTURE \"scissors\" then begin 
-                write PLAYER_ONE; 
-                write \" wins\"; 
-            end.
-
-            if is PLAYER_TWO_GESTURE \"paper\" and is PLAYER_ONE_GESTURE \"rock\" then begin 
-                write PLAYER_TWO; 
-                write \" wins\"; 
-            end.
-
-            write \"Do you want to play again?\";
-            read INPUT;
-            if is INPUT \"yes\" then begin 
-                set REPLAY = true; 
-            end. 
-            else begin 
-                set REPLAY = false; 
-            end.
-        end.
-    end.";
+    let test =
+        fs::read_to_string("testprogram.mip").expect("Expected testprogram.mip in project root");
 
     // The language we are translating to
     let language = Args::parse().language;
 
-    let stream = InputStream::new(test);
+    let stream = InputStream::new(test.as_str());
     let lexer = mini_imp::miniimplexer::MiniImpLexer::new(stream);
     let token_stream = CommonTokenStream::new(lexer);
     let mut parser = MiniImpParser::new(token_stream);

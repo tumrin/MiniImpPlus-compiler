@@ -1,6 +1,6 @@
 fn main(){
 let mut REPLAY=true;
-while REPLAY{
+while REPLAY == true{
 let mut PLAYER_ONE="";
 let mut PLAYER_ONE_GESTURE="";
 let mut PLAYER_TWO="";
