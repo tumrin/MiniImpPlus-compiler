@@ -99,7 +99,8 @@ impl MiniImpVisitorCompat<'_> for RustVisitor {
     }
 
     fn visit_asString(&mut self, ctx: &miniimpparser::AsStringContext<'_>) -> Self::Return {
-        self.visit_children(ctx) + ".to_string()"
+        self.visit_children(ctx)
+            .replace("asString ", ".to_string()")
     }
 
     fn visit_stmts(&mut self, ctx: &miniimpparser::StmtsContext<'_>) -> Self::Return {
