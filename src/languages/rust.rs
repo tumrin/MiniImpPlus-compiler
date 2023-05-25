@@ -71,7 +71,7 @@ impl MiniImpVisitorCompat<'_> for RustVisitor {
 
     fn visit_write(&mut self, ctx: &miniimpparser::WriteContext<'_>) -> Self::Return {
         let string = self.visit_children(ctx);
-        string.replace("write", "println!(").replace(";", ");")
+        string.replace("write", "println!(").replace(';', ");")
     }
 
     fn visit_read(&mut self, ctx: &miniimpparser::ReadContext<'_>) -> Self::Return {

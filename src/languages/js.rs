@@ -74,7 +74,7 @@ impl MiniImpVisitorCompat<'_> for JSVisitor {
 
     fn visit_write(&mut self, ctx: &miniimpparser::WriteContext<'_>) -> Self::Return {
         let string = self.visit_children(ctx);
-        string.replace("write ", "console.log(").replace(";", ");")
+        string.replace("write ", "console.log(").replace(';', ");")
     }
 
     fn visit_read(&mut self, ctx: &miniimpparser::ReadContext<'_>) -> Self::Return {
