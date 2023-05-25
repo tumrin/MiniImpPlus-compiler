@@ -16,3 +16,7 @@ This string is the return value of the
 visitor which contains translated source code of that language.
 
 The end result of the parsing is written to a file titled **output.\<filetype\>**.
+
+## Issues
+
+The parser gives some debug warnings, but they don't affect the output source code and the programs work fine.

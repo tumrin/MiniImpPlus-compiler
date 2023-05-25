@@ -91,11 +91,19 @@ impl MiniImpVisitorCompat<'_> for JSVisitor {
     }
 
     fn visit_asNumber(&mut self, ctx: &miniimpparser::AsNumberContext<'_>) -> Self::Return {
-        self.visit_children(ctx)
+        let string = self.visit_children(ctx);
+        format!(
+            "let {} = Number(",
+            string.split(' ').collect::<Vec<&str>>()[0]
+        ) + string.replace("asNumber", ")").trim()
     }
 
     fn visit_asString(&mut self, ctx: &miniimpparser::AsStringContext<'_>) -> Self::Return {
-        self.visit_children(ctx)
+        let string = self.visit_children(ctx);
+        format!(
+            "let {} = String(",
+            string.split(' ').collect::<Vec<&str>>()[0]
+        ) + string.replace("asString ", ")").trim()
     }
 
     fn visit_stmts(&mut self, ctx: &miniimpparser::StmtsContext<'_>) -> Self::Return {
