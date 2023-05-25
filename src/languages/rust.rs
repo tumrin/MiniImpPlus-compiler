@@ -30,7 +30,10 @@ impl ParseTreeVisitorCompat<'_> for RustVisitor {
 }
 impl MiniImpVisitorCompat<'_> for RustVisitor {
     fn visit_truth(&mut self, ctx: &miniimpparser::TruthContext<'_>) -> Self::Return {
-        let string = self.visit_children(ctx).replace("is ", "");
+        let string = self
+            .visit_children(ctx)
+            .replace("is ", "")
+            .replace("and ", "&&");
         string
     }
 
@@ -121,7 +124,6 @@ impl MiniImpVisitorCompat<'_> for RustVisitor {
         string
             .replace("program ", "fn ")
             .replace("DEMOAPP ", "main()")
-            .replace("and ", "&&")
     }
 }
 

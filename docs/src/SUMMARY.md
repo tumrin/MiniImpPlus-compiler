@@ -1,5 +1,7 @@
 # Summary
-Documentation for programming paradigms 2023 course
+
+Documentation for programming paradigms 2023 course programming exercise
+
 - [Introduction](./introduction.md)
 - [Setup](./setup.md)
 - [Parser](./parser.md)
