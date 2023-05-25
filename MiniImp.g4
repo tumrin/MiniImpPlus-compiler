@@ -11,7 +11,7 @@ expr   : term (('+' | '-') term)* ;
 term   : factor (('*' | '/') factor)* ;
 factor : ('(' expr ')') | truth | Identifier | Number | STRING;
 
-stmt   : select | iterat | set | write | read;
+stmt   : select | iterat | set | write | read | asNumber | asString;
 select : 'if' expr 'then' scope 'else' scope ;
 iterat : 'while' expr scope ;
 set    : 'set' Identifier '=' expr ';' ;
@@ -20,8 +20,8 @@ read   : 'read' expr ';' ;
 
 decl     : variable ;
 variable : 'var' Identifier ( '=' expr )? ';' ;
-asNumber : Identifier 'asNumber';
-asString : Identifier 'asString';
+asNumber : Identifier 'asNumber' ';';
+asString : Identifier 'asString' ';';
 
 stmts : stmt stmt* ;
 decls : decl decl* ;
