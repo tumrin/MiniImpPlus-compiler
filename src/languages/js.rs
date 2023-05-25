@@ -1,93 +1,127 @@
-use crate::{MiniImpPlus, TranslateMiniImpPlus};
+use crate::mini_imp::{
+    miniimpparser::{self, MiniImpParserContextType},
+    miniimpvisitor::MiniImpVisitorCompat,
+};
+use antlr_rust::{
+    rule_context::RuleContext,
+    tree::{ParseTreeVisitorCompat, TerminalNode},
+};
 
 pub struct Javascript;
+pub struct JSVisitor(pub String);
 
-impl TranslateMiniImpPlus for Javascript {
-    fn translate(
-        &self,
-        value: MiniImpPlus,
-        previous: Option<MiniImpPlus>,
-        next: MiniImpPlus,
-    ) -> String {
-        match value {
-            MiniImpPlus::True => match previous {
-                Some(MiniImpPlus::Identifier(_)) => "true)".to_string(),
-                None | Some(_) => "true".to_string(),
-            },
-            MiniImpPlus::False => match previous {
-                Some(MiniImpPlus::Identifier(_)) => "false)".to_string(),
-                None | Some(_) => "false".to_string(),
-            },
-            MiniImpPlus::Not => "!".to_string(),
-            MiniImpPlus::Is => {
-                if let MiniImpPlus::Identifier(_) = next {
-                    // Skip if there is already an identifier coming next
-                    "".to_string()
-                } else if let MiniImpPlus::Not = previous.unwrap_or(MiniImpPlus::Unknown) {
-                    // In case there is a negation (not) operator, omit the first character
-                    "==".to_string()
-                } else {
-                    // Default case
-                    "===".to_string()
-                }
-            }
-            MiniImpPlus::Or => " || ".to_string(),
-            MiniImpPlus::And => " && ".to_string(),
-            MiniImpPlus::Plus => "+".to_string(),
-            MiniImpPlus::Minus => "-".to_string(),
-            MiniImpPlus::Multiply => "*".to_string(),
-            MiniImpPlus::Divide => "/".to_string(),
-            MiniImpPlus::OpenParenthesis => "(".to_string(),
-            MiniImpPlus::CloseParenthesis => ")".to_string(),
-            MiniImpPlus::If => "if (".to_string(),
-            MiniImpPlus::Then => " )".to_string(),
-            MiniImpPlus::Else => "else".to_string(),
-            MiniImpPlus::While => "while".to_string(),
-            MiniImpPlus::Set => "".to_string(),
-            MiniImpPlus::Equals => " = ".to_string(),
-            MiniImpPlus::Semicolon => ";\n".to_string(),
-            MiniImpPlus::Write => "console.log".to_string(),
-            MiniImpPlus::Read => "".to_string(), // in identifier
-            MiniImpPlus::Var => "let ".to_string(),
-            MiniImpPlus::AsNumber => "".to_string(), // in identifier
-            MiniImpPlus::AsString => "".to_string(), // in identifier
-            MiniImpPlus::Begin => "{ \n".to_string(),
-            MiniImpPlus::End => "\n}".to_string(),
-            MiniImpPlus::Program => "
-import * as readline from 'node:readline/promises';\n
-import { stdin as input, stdout as output } from 'node:process';\n
-"
-            .to_string(),
-            MiniImpPlus::Identifier(value) => match previous {
-                Some(MiniImpPlus::Write) => {
-                    format!("({})", value)
-                }
-                Some(MiniImpPlus::Read) => {
-                    format!(
-                        "const rl_{value} = readline.createInterface({{ input, output }});
+impl ParseTreeVisitorCompat<'_> for JSVisitor {
+    type Node = MiniImpParserContextType;
+    type Return = String;
+
+    fn temp_result(&mut self) -> &mut Self::Return {
+        &mut self.0
+    }
+
+    fn visit_terminal(&mut self, _node: &TerminalNode<'_, Self::Node>) -> Self::Return {
+        _node.symbol.text.to_string() + " "
+    }
+
+    fn aggregate_results(&self, aggregate: Self::Return, next: Self::Return) -> Self::Return {
+        aggregate + &next
+    }
+}
+impl MiniImpVisitorCompat<'_> for JSVisitor {
+    fn visit_truth(&mut self, ctx: &miniimpparser::TruthContext<'_>) -> Self::Return {
+        let string = self.visit_children(ctx).replace("is ", "");
+        string
+    }
+
+    fn visit_expr(&mut self, ctx: &miniimpparser::ExprContext<'_>) -> Self::Return {
+        match ctx.get_parent_ctx().unwrap().get_rule_index() {
+            0 => "===".to_string() + "(" + &self.visit_children(ctx) + ")",
+            5 | 6 => "(".to_string() + &self.visit_children(ctx) + ")",
+            9 => {
+                let value = self.visit_children(ctx);
+                format!(
+                    "const rl_{value} = readline.createInterface({{ input, output }});
                         {value} = await rl_{value}.question('');
                         rl_{value}.close()"
-                    )
-                }
-                Some(MiniImpPlus::Is) => {
-                    format!("({} === ", value)
-                }
-                Some(MiniImpPlus::Program) => "".to_string(),
-                Some(MiniImpPlus::Identifier(_)) => format!("{value})"),
-                Some(_) | None => match next {
-                    MiniImpPlus::AsNumber => format!("Number({value})"),
-                    MiniImpPlus::AsString => format!("{value}.toString()"),
-                    _ => value,
-                },
-            },
-            MiniImpPlus::Number(number) => number,
-            MiniImpPlus::WhiteSpace => "\n".to_string(),
-            MiniImpPlus::String(value) => match previous {
-                Some(MiniImpPlus::Write) => format!("({value})"),
-                Some(MiniImpPlus::Identifier(_)) => format!("{value})"),
-                None | Some(_) => value,
-            },
-            MiniImpPlus::Unknown => "".to_string(),
+                )
+            }
+            _ => "(".to_string() + &self.visit_children(ctx) + ")",
         }
+    }
+
+    fn visit_term(&mut self, ctx: &miniimpparser::TermContext<'_>) -> Self::Return {
+        self.visit_children(ctx)
+    }
+
+    fn visit_factor(&mut self, ctx: &miniimpparser::FactorContext<'_>) -> Self::Return {
+        self.visit_children(ctx)
+    }
+
+    fn visit_stmt(&mut self, ctx: &miniimpparser::StmtContext<'_>) -> Self::Return {
+        self.visit_children(ctx)
+    }
+
+    fn visit_select(&mut self, ctx: &miniimpparser::SelectContext<'_>) -> Self::Return {
+        self.visit_children(ctx).replace("then ", "")
+    }
+
+    fn visit_iterat(&mut self, ctx: &miniimpparser::IteratContext<'_>) -> Self::Return {
+        self.visit_children(ctx)
+    }
+
+    fn visit_set(&mut self, ctx: &miniimpparser::SetContext<'_>) -> Self::Return {
+        self.visit_children(ctx).replace("set ", "")
+    }
+
+    fn visit_write(&mut self, ctx: &miniimpparser::WriteContext<'_>) -> Self::Return {
+        let string = self.visit_children(ctx);
+        string.replace("write ", "console.log(").replace(';', ");")
+    }
+
+    fn visit_read(&mut self, ctx: &miniimpparser::ReadContext<'_>) -> Self::Return {
+        self.visit_children(ctx).replace("read ", "")
+    }
+
+    fn visit_decl(&mut self, ctx: &miniimpparser::DeclContext<'_>) -> Self::Return {
+        self.visit_children(ctx)
+    }
+
+    fn visit_variable(&mut self, ctx: &miniimpparser::VariableContext<'_>) -> Self::Return {
+        let string = self.visit_children(ctx);
+        string.replace("var ", "let ")
+    }
+
+    fn visit_asNumber(&mut self, ctx: &miniimpparser::AsNumberContext<'_>) -> Self::Return {
+        self.visit_children(ctx)
+    }
+
+    fn visit_asString(&mut self, ctx: &miniimpparser::AsStringContext<'_>) -> Self::Return {
+        self.visit_children(ctx)
+    }
+
+    fn visit_stmts(&mut self, ctx: &miniimpparser::StmtsContext<'_>) -> Self::Return {
+        self.visit_children(ctx)
+    }
+
+    fn visit_decls(&mut self, ctx: &miniimpparser::DeclsContext<'_>) -> Self::Return {
+        self.visit_children(ctx)
+    }
+
+    fn visit_scope(&mut self, ctx: &miniimpparser::ScopeContext<'_>) -> Self::Return {
+        let string = self.visit_children(ctx);
+        string.replace("begin ", "{").replace("end.", "}")
+    }
+
+    fn visit_init(&mut self, ctx: &miniimpparser::InitContext<'_>) -> Self::Return {
+        self.visit_children(ctx)
+    }
+
+    fn visit_prog(&mut self, ctx: &miniimpparser::ProgContext<'_>) -> Self::Return {
+        let string = self.visit_children(ctx);
+        string
+            .replace(
+                "program ", "import * as readline from 'node:readline/promises';\nimport { stdin as input, stdout as output } from 'node:process';\n",
+            )
+            .replace("DEMOAPP ", "")
+            .replace("and ", "&&")
     }
 }

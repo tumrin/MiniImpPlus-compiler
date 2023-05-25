@@ -1,16 +1,13 @@
 # Parser implementation
 
-The parser handles each element in the MiniImp language as a token, takes into account both the previous and upcoming token and evaluates the current token. The current token is then translated into a valid expression 
-in the "destination" language, for example Javascript. The token, which is evaluated by the function ```handle_token()```, is identified as one of the enum's types that the MiniImpPlus tokens have been mapped to
-and converted to the language we're compiling to according to that language's definition of the token. These can be found in each the respective files of each language, under the languages folder. The ready, compiled programs are written into files named "output" with 
-their respective file types and contain the freshly-baked source code ready to be run.
+Parser uses the visitor pattern to traverese each node and produce code in the destination
+language matching that node. We select the language by using command line argument parsed
+by [Clap](https://crates.io/crates/clap) crate. The argument is mapped to languages enum listing all available languages.
+The file type is also selected with this enum.
 
-The translations function is part of a translateMiniImp trait which must be implemeted for all languages that the translator supports. 
+The parsing is done by [antlr\_rust](https://crates.io/crates/antlr-rust) crate. Every language supported implements ***ParseTreeVisitorCompat*** trait and
+the antlr generated ***MiniImpVisitorCompat*** trait which allows running code when certain type of node is visited.
+The traits are implemented for a struct which has a single string field. This string is the return value of the
+visitor which contains translated source code of that language.
 
-The parser traverses through the token in an index-by-index way, i.e. in order. Each of the tokens is printed to the terminal, so the user can basically see the destination language being compiled.
-
-# Why this instead of visitor or listener?
-Visitor and listener were both considered but there were issues getting them working and the partly working implementation was much more verbose and contained more boilerplate code compared to current implementation.
-These patterns were also poorly documented in the antlr_rust crate although that is on us for choosing to use Rust in this exercise as the antlr crate is currently in beta phase.
-
-Attempt at visitor pattern can be found in the "visitor" branch of this repository
+The end result of the parsing is written to a file titled **output.\<filetype\>**.
