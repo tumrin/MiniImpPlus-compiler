@@ -18,7 +18,7 @@ You can see the help menu with:
 cargo run -- --help
 ```
 
-If you want to see how the MiniImp code is compiled to either of
+If you want to see how the MiniImpPlus code is compiled to either of
 the exercise languages, it can be done by running the command.
 
 ```bash
