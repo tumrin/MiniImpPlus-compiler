@@ -2,6 +2,9 @@
 
 This program is written in rust and therefore Rust compiler is needed to compile
 and run it. Rust can be installed from [The Rust website](https://www.rust-lang.org/tools/install).
+Both the translator program and the output of the Rust flag of the program have only been tested
+to compile with the newest stable(version 1.69) Rust compiler. Older versions may work but are not
+guaranteed.
 
 ## Compiling
 
