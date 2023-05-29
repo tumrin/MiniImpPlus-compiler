@@ -12,3 +12,5 @@ Running the program can be done by using the command
 ```bash
 node output.mjs
 ```
+
+Due to the eventloop of node, the readline was hard to use with synchronously and had to be implemented with async functions.

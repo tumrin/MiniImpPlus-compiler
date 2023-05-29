@@ -4,7 +4,7 @@ We chose exercise category A: compilation. As there were two of us in the group,
 we decided to use imperative and object-oriented languages as our "destination" languages.
 We chose Rust as the imperative language and Javascript as the object-oriented one.
 Each of these programs were implemented and can be compiled as source-to-source
-from MiniImp and tested on the command line with commands provided later.
+from MiniImpPlus and tested on the command line with commands provided later.
 
 The translator program is also implemented in Rust as we think it's an interesting
 language and we wanted to test how this kind of task could be done with it.
