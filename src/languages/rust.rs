@@ -123,7 +123,7 @@ mod tests {
         println!("{output}");
         assert_eq!(
             output,
-            "if X == true { println!( X ); }else { println!( X ); }"
+            "if X == true { println!(\"{}\", X ); }else { println!(\"{}\", X ); }"
         );
     }
 }
