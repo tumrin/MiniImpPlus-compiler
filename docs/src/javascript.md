@@ -2,6 +2,10 @@
 
 To compile the output.mjs file, the translator has to be run with a javascript flag.
 
+```bash
+cargo run -- javascript
+```
+
 The Javascript program can be run from the command line using [NodeJS](https://nodejs.org/en).
 Please make sure to use node major version 18, as the compiled
 program may not work on

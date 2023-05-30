@@ -149,9 +149,18 @@
 we decided to use imperative and object-oriented languages as our &quot;destination&quot; languages.
 We chose Rust as the imperative language and Javascript as the object-oriented one.
 Each of these programs were implemented and can be compiled as source-to-source
-from MiniImp and tested on the command line with commands provided later.</p>
+from MiniImpPlus and tested on the command line with commands provided later.</p>
 <p>The translator program is also implemented in Rust as we think it's an interesting
 language and we wanted to test how this kind of task could be done with it.</p>
+<p>The documentation is generated using <a href="https://github.com/rust-lang/mdBook">mdbook</a>
+with optional <a href="https://crates.io/crates/mdbook-pdf">mdbookPdf</a> backend.
+Docs folder contains documentation in pdf and html formats.
+You can also build the documentation with mdbook.</p>
+<pre><code class="language-bash"># Build mdbook
+mdbook build
+# View in browser
+mdbook serve --open
+</code></pre>
 <p>The MiniImpPlus test program can be found in project root in <code>testprogram.mip</code>-file.
 It's implementation follows the exercise description.</p>
 <h2 id="authors--group-members"><a class="header" href="#authors--group-members">Authors / group members</a></h2>

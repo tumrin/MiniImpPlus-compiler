@@ -175,9 +175,18 @@
 we decided to use imperative and object-oriented languages as our &quot;destination&quot; languages.
 We chose Rust as the imperative language and Javascript as the object-oriented one.
 Each of these programs were implemented and can be compiled as source-to-source
-from MiniImp and tested on the command line with commands provided later.</p>
+from MiniImpPlus and tested on the command line with commands provided later.</p>
 <p>The translator program is also implemented in Rust as we think it's an interesting
 language and we wanted to test how this kind of task could be done with it.</p>
+<p>The documentation is generated using <a href="https://github.com/rust-lang/mdBook">mdbook</a>
+with optional <a href="https://crates.io/crates/mdbook-pdf">mdbookPdf</a> backend.
+Docs folder contains documentation in pdf and html formats.
+You can also build the documentation with mdbook.</p>
+<pre><code class="language-bash"># Build mdbook
+mdbook build
+# View in browser
+mdbook serve --open
+</code></pre>
 <p>The MiniImpPlus test program can be found in project root in <code>testprogram.mip</code>-file.
 It's implementation follows the exercise description.</p>
 <h2 id="authors--group-members"><a class="header" href="#authors--group-members">Authors / group members</a></h2>
@@ -187,7 +196,10 @@ It's implementation follows the exercise description.</p>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="setup"><a class="header" href="#setup">Setup</a></h1>
 <p>This program is written in rust and therefore Rust compiler is needed to compile
-and run it. Rust can be installed from <a href="https://www.rust-lang.org/tools/install">The Rust website</a>.</p>
+and run it. Rust can be installed from <a href="https://www.rust-lang.org/tools/install">The Rust website</a>.
+Both the translator program and the output of the Rust flag of the program have only been tested
+to compile with the newest stable(version 1.69) Rust compiler. Older versions may work but are not
+guaranteed.</p>
 <h2 id="compiling"><a class="header" href="#compiling">Compiling</a></h2>
 <pre><code class="language-bash"># In the project root
 cargo build # build in debug mode
@@ -196,7 +208,7 @@ cargo build # build in debug mode
 <p>You can see the help menu with:</p>
 <pre><code class="language-bash">cargo run -- --help
 </code></pre>
-<p>If you want to see how the MiniImp code is compiled to either of
+<p>If you want to see how the MiniImpPlus code is compiled to either of
 the exercise languages, it can be done by running the command.</p>
 <pre><code class="language-bash">cargo run -- javascript
 # or
@@ -211,11 +223,16 @@ The file type is also selected with this enum.</p>
 <p>The parsing is done by <a href="https://crates.io/crates/antlr-rust">antlr_rust</a> crate.
 Every language supported implements <em><strong>ParseTreeVisitorCompat</strong></em> trait and
 the antlr generated <em><strong>MiniImpVisitorCompat</strong></em> trait which allows running
-code when certain type of node is visited.</p>
+code when certain type of node is visited. We only need to change the nodes that are different in target language.
+Other nodes are left with default implementation which is just calling visit children and returning the output of that
+Antlr itself does not support generating
+Rust code so we used a <a href="https://github.com/rrevenantt/antlr4/tree/rust-target">fork</a> with Rust support.</p>
 <p>The traits are implemented for a struct which has a single string field.
 This string is the return value of the
 visitor which contains translated source code of that language.</p>
 <p>The end result of the parsing is written to a file titled <strong>output.&lt;filetype&gt;</strong>.</p>
+<h2 id="issues"><a class="header" href="#issues">Issues</a></h2>
+<p>The parser gives some debug warnings, but they don't affect the output source code and the programs work fine.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="rust"><a class="header" href="#rust">Rust</a></h1>
 <p>After running the translator with the rust flag.</p>
 <pre><code class="language-bash">cargo run -- --rust
@@ -233,6 +250,8 @@ the rustc directly.</p>
 MiniImpPlus to allow set statement to change variable value.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="javascript"><a class="header" href="#javascript">Javascript</a></h1>
 <p>To compile the output.mjs file, the translator has to be run with a javascript flag.</p>
+<pre><code class="language-bash">cargo run -- javascript
+</code></pre>
 <p>The Javascript program can be run from the command line using <a href="https://nodejs.org/en">NodeJS</a>.
 Please make sure to use node major version 18, as the compiled
 program may not work on
@@ -240,6 +259,7 @@ older versions as it requires support for top level async.</p>
 <p>Running the program can be done by using the command</p>
 <pre><code class="language-bash">node output.mjs
 </code></pre>
+<p>Due to the eventloop of node, the readline was hard to use with synchronously and had to be implemented with async functions.</p>
 
                     </main>
 

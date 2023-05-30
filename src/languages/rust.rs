@@ -4,7 +4,8 @@ use crate::mini_imp::{
     miniimpvisitor::MiniImpVisitorCompat,
 };
 use antlr_rust::{
-    rule_context::RuleContext,
+    parser_rule_context::ParserRuleContext,
+    rule_context::{CustomRuleContext, RuleContext},
     tree::{ParseTreeVisitorCompat, TerminalNode},
 };
 use std::format;
@@ -48,24 +49,8 @@ impl MiniImpVisitorCompat<'_> for RustVisitor {
         }
     }
 
-    fn visit_term(&mut self, ctx: &miniimpparser::TermContext<'_>) -> Self::Return {
-        self.visit_children(ctx)
-    }
-
-    fn visit_factor(&mut self, ctx: &miniimpparser::FactorContext<'_>) -> Self::Return {
-        self.visit_children(ctx)
-    }
-
-    fn visit_stmt(&mut self, ctx: &miniimpparser::StmtContext<'_>) -> Self::Return {
-        self.visit_children(ctx)
-    }
-
     fn visit_select(&mut self, ctx: &miniimpparser::SelectContext<'_>) -> Self::Return {
         self.visit_children(ctx).replace("then ", "")
-    }
-
-    fn visit_iterat(&mut self, ctx: &miniimpparser::IteratContext<'_>) -> Self::Return {
-        self.visit_children(ctx)
     }
 
     fn visit_set(&mut self, ctx: &miniimpparser::SetContext<'_>) -> Self::Return {
@@ -74,15 +59,13 @@ impl MiniImpVisitorCompat<'_> for RustVisitor {
 
     fn visit_write(&mut self, ctx: &miniimpparser::WriteContext<'_>) -> Self::Return {
         let string = self.visit_children(ctx);
-        string.replace("write ", "println!( ").replace(';', ");")
+        string
+            .replace("write ", "println!(\"{}\", ")
+            .replace(';', ");")
     }
 
     fn visit_read(&mut self, ctx: &miniimpparser::ReadContext<'_>) -> Self::Return {
         self.visit_children(ctx).replace("read ", "")
-    }
-
-    fn visit_decl(&mut self, ctx: &miniimpparser::DeclContext<'_>) -> Self::Return {
-        self.visit_children(ctx)
     }
 
     fn visit_variable(&mut self, ctx: &miniimpparser::VariableContext<'_>) -> Self::Return {
@@ -103,21 +86,9 @@ impl MiniImpVisitorCompat<'_> for RustVisitor {
             .replace("asString ", ".to_string()")
     }
 
-    fn visit_stmts(&mut self, ctx: &miniimpparser::StmtsContext<'_>) -> Self::Return {
-        self.visit_children(ctx)
-    }
-
-    fn visit_decls(&mut self, ctx: &miniimpparser::DeclsContext<'_>) -> Self::Return {
-        self.visit_children(ctx)
-    }
-
     fn visit_scope(&mut self, ctx: &miniimpparser::ScopeContext<'_>) -> Self::Return {
         let string = self.visit_children(ctx);
         string.replace("begin ", "{ ").replace("end. ", "}")
-    }
-
-    fn visit_init(&mut self, ctx: &miniimpparser::InitContext<'_>) -> Self::Return {
-        self.visit_children(ctx)
     }
 
     fn visit_prog(&mut self, ctx: &miniimpparser::ProgContext<'_>) -> Self::Return {

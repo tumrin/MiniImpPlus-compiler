@@ -146,6 +146,8 @@
                     <main>
                         <h1 id="javascript"><a class="header" href="#javascript">Javascript</a></h1>
 <p>To compile the output.mjs file, the translator has to be run with a javascript flag.</p>
+<pre><code class="language-bash">cargo run -- javascript
+</code></pre>
 <p>The Javascript program can be run from the command line using <a href="https://nodejs.org/en">NodeJS</a>.
 Please make sure to use node major version 18, as the compiled
 program may not work on
@@ -153,6 +155,7 @@ older versions as it requires support for top level async.</p>
 <p>Running the program can be done by using the command</p>
 <pre><code class="language-bash">node output.mjs
 </code></pre>
+<p>Due to the eventloop of node, the readline was hard to use with synchronously and had to be implemented with async functions.</p>
 
                     </main>
 
