@@ -31,32 +31,32 @@ program DEMOAPP
      
       if is PLAYER_TWO_GESTURE "rock" and is PLAYER_ONE_GESTURE "scissors" then begin 
           write PLAYER_TWO; 
-          write " wins"; 
+          write "wins"; 
       end.
 
       if is PLAYER_TWO_GESTURE "rock" and is PLAYER_ONE_GESTURE "paper" then begin 
           write PLAYER_ONE; 
-          write " wins"; 
+          write "wins"; 
       end.
 
       if is PLAYER_TWO_GESTURE "scissors" and is PLAYER_ONE_GESTURE "paper" then begin 
           write PLAYER_TWO; 
-          write " wins"; 
+          write "wins"; 
       end.
 
       if is PLAYER_TWO_GESTURE "scissors" and is PLAYER_ONE_GESTURE "rock" then begin 
           write PLAYER_ONE; 
-          write " wins"; 
+          write "wins"; 
       end.
 
       if is PLAYER_TWO_GESTURE "paper" and is PLAYER_ONE_GESTURE "scissors" then begin 
           write PLAYER_ONE; 
-          write " wins"; 
+          write "wins"; 
       end.
 
       if is PLAYER_TWO_GESTURE "paper" and is PLAYER_ONE_GESTURE "rock" then begin 
           write PLAYER_TWO; 
-          write " wins"; 
+          write "wins"; 
       end.
 
       write "Do you want to play again?";
