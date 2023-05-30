@@ -3,7 +3,7 @@
 After running the translator with the rust flag.
 
 ```bash
-cargo run -- --rust
+cargo run -- rust
 ```
 
 an output.rs file is created. This file can then be compliled by invoking
